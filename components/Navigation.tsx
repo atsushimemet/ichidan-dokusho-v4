@@ -83,18 +83,18 @@ export default function Navigation() {
         {isMenuOpen && (
           <div className="md:hidden py-6 border-t border-gray-100 bg-white/95 backdrop-blur-sm">
             <div className="flex flex-col space-y-4">
-              <a href="#" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
+              <Link href="/" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
                 ホーム
-              </a>
-              <a href="#" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
+              </Link>
+              <Link href="/memos" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
+                みんなのメモ
+              </Link>
+              <Link href="/books" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
                 書籍一覧
-              </a>
-              <a href="#" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
-                学び履歴
-              </a>
-              <a href="#" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
-                設定
-              </a>
+              </Link>
+              <Link href="/bookstores" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
+                店舗一覧
+              </Link>
               
               <div className="pt-4 border-t border-gray-100">
                 {isLoggedIn ? (
