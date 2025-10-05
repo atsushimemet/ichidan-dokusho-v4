@@ -60,12 +60,20 @@ const memoData = [
 
 export default function MemoListPage() {
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedTag, setSelectedTag] = useState('')
 
-  const filteredMemos = memoData.filter(memo =>
-    memo.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    memo.memoTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    memo.memoContent.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // 全メモからタグを抽出してユニークなタグリストを作成
+  const allTags = Array.from(new Set(memoData.flatMap(memo => memo.bookTags)))
+
+  const filteredMemos = memoData.filter(memo => {
+    const matchesSearch = memo.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         memo.memoTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         memo.memoContent.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    const matchesTag = selectedTag === '' || memo.bookTags.includes(selectedTag)
+    
+    return matchesSearch && matchesTag
+  })
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text
@@ -110,7 +118,7 @@ export default function MemoListPage() {
           </div>
 
           {/* Search */}
-          <div className="mb-8">
+          <div className="mb-6">
             <input
               type="text"
               placeholder="書籍名、メモタイトル、内容で検索..."
@@ -118,6 +126,46 @@ export default function MemoListPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white"
             />
+          </div>
+
+          {/* Tag Slider */}
+          <div className="mb-8">
+            <div className="flex items-center space-x-4 mb-4">
+              <h3 className="text-sm font-medium text-gray-700">タグで絞り込み:</h3>
+              {selectedTag && (
+                <button
+                  onClick={() => setSelectedTag('')}
+                  className="text-xs text-gray-500 hover:text-gray-700 underline"
+                >
+                  すべて表示
+                </button>
+              )}
+            </div>
+            <div className="flex space-x-3 overflow-x-auto pb-2">
+              <button
+                onClick={() => setSelectedTag('')}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  selectedTag === ''
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                すべて
+              </button>
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => setSelectedTag(tag)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                    selectedTag === tag
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Memo Cards */}
