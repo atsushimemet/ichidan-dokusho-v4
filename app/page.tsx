@@ -375,9 +375,9 @@ export default function Home() {
                           <div className="flex flex-col">
                             {/* 本屋名と場所 */}
                             <div className="mb-6">
-                              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                              <Link href={`/bookstores/${bookstore.id}`} className="text-2xl font-bold text-gray-900 mb-2 hover:text-primary-600 transition-colors">
                                 {bookstore.name}
-                              </h3>
+                              </Link>
                               <div className="flex items-center text-gray-600">
                                 <MapPin className="w-4 h-4 mr-2" />
                                 <span className="text-base">{bookstore.location}</span>
