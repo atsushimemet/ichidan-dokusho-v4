@@ -1,9 +1,8 @@
 'use client'
 
-import { BookOpen, Calendar, ChevronLeft, ChevronRight, ExternalLink, MapPin } from 'lucide-react'
-import Link from 'next/link'
-import { useState } from 'react'
 import Navigation from '@/components/Navigation'
+import { BookOpen, Calendar, ChevronRight, ExternalLink, MapPin, User } from 'lucide-react'
+import { useState } from 'react'
 
 export default function BookstoreDetailPage({ params }: { params: { id: string } }) {
   const [currentSlide, setCurrentSlide] = useState(0)

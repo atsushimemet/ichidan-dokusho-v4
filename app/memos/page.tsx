@@ -1,9 +1,9 @@
 'use client'
 
-import { BookOpen, Calendar, ChevronLeft } from 'lucide-react'
+import Navigation from '@/components/Navigation'
+import { BookOpen, Calendar, User } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
-import Navigation from '@/components/Navigation'
 
 // メモデータ
 const memoData = [
