@@ -2,6 +2,7 @@
 
 import Navigation from '@/components/Navigation'
 import { ArrowRight, BarChart3, BookOpen, Brain, ChevronRight, Clock, FileText, HelpCircle, MapPin, RefreshCw, Target, TrendingUp, Twitter } from 'lucide-react'
+import Link from 'next/link'
 import { useState } from 'react'
 
 export default function Home() {
@@ -201,12 +202,12 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
-                あなたのアウトプット
+                みんなのアウトプット
               </h2>
-              <button className="flex items-center space-x-1 md:space-x-2 text-primary-600 hover:text-primary-700 font-medium transition-colors text-sm md:text-base">
+              <Link href="/memos" className="flex items-center space-x-1 md:space-x-2 text-primary-600 hover:text-primary-700 font-medium transition-colors text-sm md:text-base">
                 <span>すべてを見る</span>
                 <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
-              </button>
+              </Link>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
