@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowDown, BookOpen, CheckCircle, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
+import { ArrowDown, BookOpen, CheckCircle, ChevronLeft, ChevronRight, ExternalLink, Menu, X } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -9,6 +9,7 @@ export default function OnboardingPage() {
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: number | null }>({})
   const [isCompleted, setIsCompleted] = useState(false)
   const [showPopup, setShowPopup] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   // おすすめ書籍データ
   const recommendedBooks = [
@@ -128,13 +129,38 @@ export default function OnboardingPage() {
                 <p className="text-xs text-gray-500 -mt-1">Knowledge Loop Edition</p>
               </div>
             </Link>
-            
-            <Link href="/" className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors">
-              <ChevronLeft className="w-5 h-5" />
-              <span>ホームに戻る</span>
-            </Link>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden py-6 border-t border-gray-100 bg-white/95 backdrop-blur-sm">
+            <div className="flex flex-col space-y-4">
+              <Link href="/" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
+                ホーム
+              </Link>
+              <Link href="/memos" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
+                みんなのメモ
+              </Link>
+              <Link href="/books" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
+                書籍一覧
+              </Link>
+              <Link href="/bookstores" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
+                店舗一覧
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Main Content */}
