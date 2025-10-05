@@ -211,34 +211,37 @@ export default function OnboardingPage() {
 
             {/* Navigation Buttons */}
             <div className="flex justify-between">
-              <button
-                onClick={handlePrevious}
-                disabled={isFirstStep}
-                className="flex items-center space-x-2 px-6 py-3 text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="w-5 h-5" />
-                <span>前へ</span>
-              </button>
-
-              {isLastStep ? (
+              {!isFirstStep && (
                 <button
-                  onClick={handleComplete}
-                  disabled={selectedAnswers[currentStep] === null || selectedAnswers[currentStep] === undefined}
-                  className="flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handlePrevious}
+                  className="flex items-center space-x-2 px-6 py-3 text-gray-600 hover:text-gray-900 transition-colors"
                 >
-                  <span>完了</span>
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              ) : (
-                <button
-                  onClick={handleNext}
-                  disabled={selectedAnswers[currentStep] === null || selectedAnswers[currentStep] === undefined}
-                  className="flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span>次へ</span>
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronLeft className="w-5 h-5" />
+                  <span>前へ</span>
                 </button>
               )}
+
+              <div className={isFirstStep ? 'ml-auto' : ''}>
+                {isLastStep ? (
+                  <button
+                    onClick={handleComplete}
+                    disabled={selectedAnswers[currentStep] === null || selectedAnswers[currentStep] === undefined}
+                    className="flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span>完了</span>
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleNext}
+                    disabled={selectedAnswers[currentStep] === null || selectedAnswers[currentStep] === undefined}
+                    className="flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span>次へ</span>
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
