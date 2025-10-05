@@ -1,9 +1,6 @@
 'use client'
 
-import BookList from '@/components/BookList'
-import MemoForm from '@/components/MemoForm'
 import Navigation from '@/components/Navigation'
-import QuizSection from '@/components/QuizSection'
 import { ArrowRight, BarChart3, BookOpen, Brain, ChevronRight, Clock, FileText, HelpCircle, MapPin, RefreshCw, Target, TrendingUp, Twitter } from 'lucide-react'
 import { useState } from 'react'
 
@@ -14,16 +11,16 @@ export default function Home() {
 
   // おすすめ書籍データ
   const recommendedBooks = [
-    { id: 1, title: '思考の整理学', recommender: '田中太郎', xPost: 'https://x.com/example1' },
-    { id: 2, title: 'アウトプット大全', recommender: '佐藤花子', xPost: 'https://x.com/example2' },
-    { id: 3, title: 'デジタル時代の読書術', recommender: '山田次郎', xPost: 'https://x.com/example3' },
-    { id: 4, title: '習慣の力', recommender: '鈴木一郎', xPost: 'https://x.com/example4' },
-    { id: 5, title: '深い学び', recommender: '高橋美咲', xPost: 'https://x.com/example5' },
-    { id: 6, title: 'クリエイティブ思考', recommender: '伊藤健太', xPost: 'https://x.com/example6' },
-    { id: 7, title: '時間管理術', recommender: '渡辺さくら', xPost: 'https://x.com/example7' },
-    { id: 8, title: '集中力の科学', recommender: '中村大輔', xPost: 'https://x.com/example8' },
-    { id: 9, title: '記憶術大全', recommender: '小林あい', xPost: 'https://x.com/example9' },
-    { id: 10, title: '学習の技法', recommender: '加藤雄一', xPost: 'https://x.com/example10' },
+    { id: 1, title: '思考の整理学', recommender: '田中太郎', xPost: 'https://x.com/example1', tags: ['思考法', '整理術', '創造性'] },
+    { id: 2, title: 'アウトプット大全', recommender: '佐藤花子', xPost: 'https://x.com/example2', tags: ['学習法', 'アウトプット', '記憶'] },
+    { id: 3, title: 'デジタル時代の読書術', recommender: '山田次郎', xPost: 'https://x.com/example3', tags: ['読書術', 'デジタル', '情報処理'] },
+    { id: 4, title: '習慣の力', recommender: '鈴木一郎', xPost: 'https://x.com/example4', tags: ['習慣', '心理学', '行動科学'] },
+    { id: 5, title: '深い学び', recommender: '高橋美咲', xPost: 'https://x.com/example5', tags: ['学習理論', '認知科学', '教育'] },
+    { id: 6, title: 'クリエイティブ思考', recommender: '伊藤健太', xPost: 'https://x.com/example6', tags: ['創造性', 'イノベーション', '発想法'] },
+    { id: 7, title: '時間管理術', recommender: '渡辺さくら', xPost: 'https://x.com/example7', tags: ['時間管理', '生産性', '効率化'] },
+    { id: 8, title: '集中力の科学', recommender: '中村大輔', xPost: 'https://x.com/example8', tags: ['集中力', '脳科学', 'パフォーマンス'] },
+    { id: 9, title: '記憶術大全', recommender: '小林あい', xPost: 'https://x.com/example9', tags: ['記憶術', '暗記法', '学習効率'] },
+    { id: 10, title: '学習の技法', recommender: '加藤雄一', xPost: 'https://x.com/example10', tags: ['学習法', 'スキルアップ', '自己啓発'] },
   ]
 
   const booksPerSlide = 1
@@ -134,7 +131,7 @@ export default function Home() {
                 <div className="flex-1 mr-4 md:mr-6">
                   <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 whitespace-nowrap">
                     読書を始めよう
-                  </h1>
+          </h1>
                   <p className="text-base md:text-lg text-blue-100 mb-4 md:mb-6 whitespace-nowrap">
                     あなたの学びをサポートします
                   </p>
@@ -146,7 +143,7 @@ export default function Home() {
                   <div className="w-16 h-16 md:w-20 md:h-20 bg-white/20 rounded-xl flex items-center justify-center">
                     <BookOpen className="w-8 h-8 md:w-10 md:h-10 text-white" />
                   </div>
-                </div>
+        </div>
               </div>
             </div>
           </div>
@@ -191,7 +188,7 @@ export default function Home() {
                   </div>
                   <div className="text-lg md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">85%</div>
                   <div className="text-xs md:text-base text-gray-600 font-medium">正答率</div>
-                </div>
+            </div>
               </div>
             </div>
           </div>
@@ -291,9 +288,22 @@ export default function Home() {
                             <h3 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
                               {book.title}
                             </h3>
-                            <p className="text-base text-gray-600 mb-6">
+                            <p className="text-base text-gray-600 mb-4">
                               推薦者: {book.recommender}
                             </p>
+                            
+                            {/* タグ */}
+                            <div className="flex flex-wrap gap-2 justify-center mb-6">
+                              {book.tags.map((tag, tagIndex) => (
+                                <span
+                                  key={tagIndex}
+                                  className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+        </div>
+
                             <a
                               href={book.xPost}
                               target="_blank"
@@ -305,11 +315,11 @@ export default function Home() {
                             </a>
                           </div>
                         </div>
-                      </div>
-                    </div>
+          </div>
+          </div>
                   ))}
-                </div>
-              </div>
+          </div>
+        </div>
 
               {/* ナビゲーションボタン */}
               <button
@@ -430,7 +440,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Knowledge Loop Visualization */}
+        {/* Knowledge Loop Visualization */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -444,7 +454,7 @@ export default function Home() {
           
           <div className="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-12">
             <div className="text-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+              <div className="w-24 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mb-4 shadow-lg mx-auto">
                 <BookOpen className="w-12 h-12 text-primary-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">読書</h3>
@@ -459,7 +469,7 @@ export default function Home() {
             </div>
             
             <div className="text-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+              <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center mb-4 shadow-lg mx-auto">
                 <Brain className="w-12 h-12 text-purple-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">理解</h3>
@@ -474,7 +484,7 @@ export default function Home() {
             </div>
             
             <div className="text-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+              <div className="w-24 h-24 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center mb-4 shadow-lg mx-auto">
                 <Target className="w-12 h-12 text-green-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">復習</h3>
@@ -484,7 +494,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section */}
+        {/* Stats Section */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -495,7 +505,7 @@ export default function Home() {
               多くのユーザーに選ばれている理由
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-shadow">
               <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center mx-auto mb-6">
@@ -562,68 +572,11 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">クイズ生成</h3>
               <p className="text-gray-600">AIが自動で理解度チェッククイズを作成</p>
-            </div>
           </div>
         </div>
+      </div>
       </section>
 
-      {/* Main Content Tabs */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                今すぐ始める
-              </h2>
-              <p className="text-lg text-gray-600">
-                以下の機能を使って、効率的な読書学習を始めましょう
-              </p>
-            </div>
-            
-            <div className="flex justify-center mb-12">
-              <div className="bg-white rounded-2xl p-2 shadow-lg border border-gray-100">
-                <button
-                  onClick={() => setActiveTab('books')}
-                  className={`px-8 py-3 rounded-xl font-semibold transition-all duration-200 ${
-                    activeTab === 'books'
-                      ? 'bg-primary-600 text-white shadow-lg'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                >
-                  書籍一覧
-                </button>
-                <button
-                  onClick={() => setActiveTab('memo')}
-                  className={`px-8 py-3 rounded-xl font-semibold transition-all duration-200 ${
-                    activeTab === 'memo'
-                      ? 'bg-primary-600 text-white shadow-lg'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                >
-                  メモ作成
-                </button>
-                <button
-                  onClick={() => setActiveTab('quiz')}
-                  className={`px-8 py-3 rounded-xl font-semibold transition-all duration-200 ${
-                    activeTab === 'quiz'
-                      ? 'bg-primary-600 text-white shadow-lg'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                >
-                  クイズ
-                </button>
-              </div>
-            </div>
-
-            {/* Tab Content */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-              {activeTab === 'books' && <BookList />}
-              {activeTab === 'memo' && <MemoForm />}
-              {activeTab === 'quiz' && <QuizSection />}
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   )
 }
