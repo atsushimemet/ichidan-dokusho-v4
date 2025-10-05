@@ -286,9 +286,9 @@ export default function Home() {
                             <div className="w-20 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center mb-6">
                               <BookOpen className="w-10 h-10 text-primary-600" />
                             </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
+                            <Link href={`/books/${book.id}`} className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2 hover:text-primary-600 transition-colors">
                               {book.title}
-                            </h3>
+                            </Link>
                             <p className="text-base text-gray-600 mb-4">
                               推薦者: {book.recommender}
                             </p>
