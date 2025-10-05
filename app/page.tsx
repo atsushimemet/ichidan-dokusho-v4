@@ -4,12 +4,13 @@ import BookList from '@/components/BookList'
 import MemoForm from '@/components/MemoForm'
 import Navigation from '@/components/Navigation'
 import QuizSection from '@/components/QuizSection'
-import { ArrowRight, BarChart3, BookOpen, Brain, ChevronRight, Clock, FileText, HelpCircle, RefreshCw, Target, TrendingUp, Twitter } from 'lucide-react'
+import { ArrowRight, BarChart3, BookOpen, Brain, ChevronRight, Clock, FileText, HelpCircle, MapPin, RefreshCw, Target, TrendingUp, Twitter } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'books' | 'memo' | 'quiz'>('books')
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [currentBookstoreSlide, setCurrentBookstoreSlide] = useState(0)
 
   // おすすめ書籍データ
   const recommendedBooks = [
@@ -34,6 +35,90 @@ export default function Home() {
 
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
+  }
+
+  // 本屋データ
+  const bookstores = [
+    { 
+      id: 1, 
+      name: '蔦屋書店 代官山店', 
+      location: '東京都渋谷区', 
+      description: '世界で最も美しい書店の一つ。建築と本が融合した空間で、新しい読書体験を提供します。',
+      tags: ['建築', 'カフェ', 'アート']
+    },
+    { 
+      id: 2, 
+      name: '神保町古書センター', 
+      location: '東京都千代田区', 
+      description: '古書の聖地として知られる老舗書店。貴重な古書から最新刊まで幅広く取り揃えています。',
+      tags: ['古書', '歴史', '専門書']
+    },
+    { 
+      id: 3, 
+      name: '本屋B&B', 
+      location: '東京都世田谷区', 
+      description: '本とビールが楽しめるユニークな書店。読書会やイベントも頻繁に開催されています。',
+      tags: ['イベント', 'ビール', 'コミュニティ']
+    },
+    { 
+      id: 4, 
+      name: '森岡書店', 
+      location: '東京都中央区', 
+      description: '1週間に1冊だけを売る革新的な書店。店主の厳選された一冊との出会いが待っています。',
+      tags: ['厳選', '店主推薦', '限定']
+    },
+    { 
+      id: 5, 
+      name: 'ブックファースト 新宿店', 
+      location: '東京都新宿区', 
+      description: '新宿の中心地にある大型書店。最新のベストセラーから専門書まで豊富な品揃えです。',
+      tags: ['大型', 'ベストセラー', 'アクセス良好']
+    },
+    { 
+      id: 6, 
+      name: '三省堂書店 神保町本店', 
+      location: '東京都千代田区', 
+      description: '神保町の老舗書店。学術書や専門書の品揃えが充実しており、研究者にも愛されています。',
+      tags: ['学術書', '専門書', '老舗']
+    },
+    { 
+      id: 7, 
+      name: '代官山 蔦屋書店', 
+      location: '東京都渋谷区', 
+      description: '代官山のランドマーク的存在。本、音楽、映画が融合した複合文化施設です。',
+      tags: ['複合施設', '音楽', '映画']
+    },
+    { 
+      id: 8, 
+      name: '丸善 丸の内本店', 
+      location: '東京都千代田区', 
+      description: '丸の内のビジネス街にある老舗書店。ビジネス書や実用書の品揃えが特に充実しています。',
+      tags: ['ビジネス書', '実用書', 'ビジネス街']
+    },
+    { 
+      id: 9, 
+      name: 'ジュンク堂書店 池袋本店', 
+      location: '東京都豊島区', 
+      description: '池袋の大型書店。文芸書から実用書まで幅広いジャンルをカバーしています。',
+      tags: ['文芸書', '実用書', '大型']
+    },
+    { 
+      id: 10, 
+      name: '有隣堂 横浜店', 
+      location: '神奈川県横浜市', 
+      description: '横浜の老舗書店。地域に根ざした書店として、地元の人々に愛され続けています。',
+      tags: ['地域密着', '老舗', '横浜']
+    }
+  ]
+
+  const totalBookstoreSlides = bookstores.length
+
+  const nextBookstoreSlide = () => {
+    setCurrentBookstoreSlide((prev) => (prev + 1) % totalBookstoreSlides)
+  }
+
+  const prevBookstoreSlide = () => {
+    setCurrentBookstoreSlide((prev) => (prev - 1 + totalBookstoreSlides) % totalBookstoreSlides)
   }
 
   return (
@@ -249,6 +334,94 @@ export default function Home() {
                   onClick={() => setCurrentSlide(index)}
                   className={`w-3 h-3 rounded-full transition-colors ${
                     index === currentSlide ? 'bg-primary-600' : 'bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Bookstore Slider Section */}
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 text-center">
+              おすすめの本屋
+            </h2>
+            
+            <div className="relative">
+              {/* スライダーコンテナ */}
+              <div className="overflow-hidden">
+                <div 
+                  className="flex transition-transform duration-300 ease-in-out"
+                  style={{ transform: `translateX(-${currentBookstoreSlide * 100}%)` }}
+                >
+                  {bookstores.map((bookstore) => (
+                    <div key={bookstore.id} className="w-full flex-shrink-0">
+                      <div className="flex justify-center">
+                        <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow max-w-lg w-full border border-gray-100">
+                          <div className="flex flex-col">
+                            {/* 本屋名と場所 */}
+                            <div className="mb-6">
+                              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                                {bookstore.name}
+                              </h3>
+                              <div className="flex items-center text-gray-600">
+                                <MapPin className="w-4 h-4 mr-2" />
+                                <span className="text-base">{bookstore.location}</span>
+                              </div>
+                            </div>
+
+                            {/* 一言紹介 */}
+                            <div className="mb-6">
+                              <p className="text-gray-700 leading-relaxed">
+                                {bookstore.description}
+                              </p>
+                            </div>
+
+                            {/* タグ */}
+                            <div className="flex flex-wrap gap-2">
+                              {bookstore.tags.map((tag, index) => (
+                                <span
+                                  key={index}
+                                  className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ナビゲーションボタン */}
+              <button
+                onClick={prevBookstoreSlide}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-600 rotate-180" />
+              </button>
+              <button
+                onClick={nextBookstoreSlide}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            {/* スライダーインジケーター */}
+            <div className="flex justify-center mt-8 space-x-2">
+              {Array.from({ length: totalBookstoreSlides }).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentBookstoreSlide(index)}
+                  className={`w-3 h-3 rounded-full transition-colors ${
+                    index === currentBookstoreSlide ? 'bg-primary-600' : 'bg-gray-300'
                   }`}
                 />
               ))}
