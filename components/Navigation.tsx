@@ -1,12 +1,43 @@
 'use client'
 
+import { createClient } from '@/lib/supabase'
 import { BookOpen, LogOut, Menu, User, X } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function Navigation() {
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false) // 仮の状態
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const supabase = createClient()
+    
+    // 現在のユーザーを取得
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setIsLoading(false)
+    }
+    
+    getUser()
+
+    // 認証状態の変化を監視
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null)
+      setIsLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/')
+  }
 
   return (
     <nav className="bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-100 sticky top-0 z-50">
@@ -42,14 +73,16 @@ export default function Navigation() {
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-600 transition-all group-hover:w-full"></span>
             </a>
             
-            {isLoggedIn ? (
+            {isLoading ? (
+              <div className="w-8 h-8 animate-spin rounded-full border-2 border-gray-300 border-t-primary-600"></div>
+            ) : user ? (
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 text-gray-600">
                   <User className="w-5 h-5" />
-                  <span className="font-medium">ユーザー名</span>
+                  <span className="font-medium">{user.email}</span>
                 </div>
                 <button 
-                  onClick={() => setIsLoggedIn(false)}
+                  onClick={handleLogout}
                   className="flex items-center space-x-2 text-gray-500 hover:text-gray-700 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
@@ -58,12 +91,12 @@ export default function Navigation() {
               </div>
             ) : (
               <div className="flex items-center space-x-3">
-                <button className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                <Link href="/login" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
                   ログイン
-                </button>
-                <button className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl">
+                </Link>
+                <Link href="/login" className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl">
                   無料で始める
-                </button>
+                </Link>
               </div>
             )}
           </div>
@@ -103,14 +136,18 @@ export default function Navigation() {
               </div>
               
               <div className="pt-4 border-t border-gray-100">
-                {isLoggedIn ? (
+                {isLoading ? (
+                  <div className="flex justify-center py-4">
+                    <div className="w-6 h-6 animate-spin rounded-full border-2 border-gray-300 border-t-primary-600"></div>
+                  </div>
+                ) : user ? (
                   <div className="space-y-3">
                     <div className="flex items-center space-x-2 text-gray-600 py-2">
                       <User className="w-5 h-5" />
-                      <span className="font-medium">ユーザー名</span>
+                      <span className="font-medium">{user.email}</span>
                     </div>
                     <button 
-                      onClick={() => setIsLoggedIn(false)}
+                      onClick={handleLogout}
                       className="flex items-center space-x-2 text-gray-500 hover:text-gray-700 transition-colors py-2"
                     >
                       <LogOut className="w-4 h-4" />
@@ -119,12 +156,12 @@ export default function Navigation() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <button className="w-full text-gray-600 hover:text-gray-900 font-medium py-3 transition-colors">
+                    <Link href="/login" className="block w-full text-gray-600 hover:text-gray-900 font-medium py-3 transition-colors text-center">
                       ログイン
-                    </button>
-                    <button className="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg">
+                    </Link>
+                    <Link href="/login" className="block w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg text-center">
                       無料で始める
-                    </button>
+                    </Link>
                   </div>
                 )}
               </div>

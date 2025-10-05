@@ -98,6 +98,23 @@ ichidan-dokusho-v4/
 - グラデーション背景
 - レスポンシブデザイン
 
+## 📊 データベース設定
+
+### Supabase設定
+1. Supabaseプロジェクトを作成
+2. `.env.local`に環境変数を設定：
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
+
+### サンプルデータの挿入
+1. `database/schema.sql`をSupabaseのSQLエディターで実行
+2. `database/sample_data_with_constraints_disabled.sql`を実行してサンプルデータを挿入
+
+**注意**: 外部キー制約エラーを避けるため、`sample_data_with_constraints_disabled.sql`を使用してください。
+
 ## 📊 MVP KPI
 
 - 初回クイズ生成率: 70%以上
@@ -105,11 +122,26 @@ ichidan-dokusho-v4/
 - 平均滞在時間: 3分以上
 - 学び満足度: 4.0/5以上
 
+## 🔐 認証機能
+
+### Magic Link認証
+- **ログインページ**: `/login`
+- **認証フロー**: メールアドレス入力 → Magic Link送信 → リンククリックでログイン
+- **セッション管理**: Supabase Authによる永続化
+- **リダイレクト**: ログイン前のページに自動復帰
+
+### 管理者認証
+- **ログインページ**: `/admin/login`
+- **認証方式**: Email + パスワード
+- **保護ルート**: `/admin/*` 配下は認証必須
+
 ## 🔮 今後の実装予定
 
 - [ ] Supabaseデータベース連携
 - [ ] GPT API連携（クイズ生成）
-- [ ] ユーザー認証
+- [x] Magic Link認証
+- [x] セッション管理
+- [x] ミドルウェア保護
 - [ ] リマインダー通知機能
 - [ ] 学び履歴の可視化
 - [ ] モバイルアプリ対応

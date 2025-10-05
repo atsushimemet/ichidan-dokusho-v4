@@ -1,6 +1,9 @@
 'use client'
 
 import Navigation from '@/components/Navigation'
+import { useBooks } from '@/hooks/useBooks'
+import { useBookstores } from '@/hooks/useBookstores'
+import { useMemos } from '@/hooks/useMemos'
 import { ArrowRight, BarChart3, BookOpen, Brain, ChevronRight, Clock, FileText, HelpCircle, MapPin, RefreshCw, Target, TrendingUp, Twitter } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -10,19 +13,10 @@ export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [currentBookstoreSlide, setCurrentBookstoreSlide] = useState(0)
 
-  // おすすめ書籍データ
-  const recommendedBooks = [
-    { id: 1, title: '思考の整理学', recommender: '田中太郎', xPost: 'https://x.com/example1', tags: ['思考法', '整理術', '創造性'] },
-    { id: 2, title: 'アウトプット大全', recommender: '佐藤花子', xPost: 'https://x.com/example2', tags: ['学習法', 'アウトプット', '記憶'] },
-    { id: 3, title: 'デジタル時代の読書術', recommender: '山田次郎', xPost: 'https://x.com/example3', tags: ['読書術', 'デジタル', '情報処理'] },
-    { id: 4, title: '習慣の力', recommender: '鈴木一郎', xPost: 'https://x.com/example4', tags: ['習慣', '心理学', '行動科学'] },
-    { id: 5, title: '深い学び', recommender: '高橋美咲', xPost: 'https://x.com/example5', tags: ['学習理論', '認知科学', '教育'] },
-    { id: 6, title: 'クリエイティブ思考', recommender: '伊藤健太', xPost: 'https://x.com/example6', tags: ['創造性', 'イノベーション', '発想法'] },
-    { id: 7, title: '時間管理術', recommender: '渡辺さくら', xPost: 'https://x.com/example7', tags: ['時間管理', '生産性', '効率化'] },
-    { id: 8, title: '集中力の科学', recommender: '中村大輔', xPost: 'https://x.com/example8', tags: ['集中力', '脳科学', 'パフォーマンス'] },
-    { id: 9, title: '記憶術大全', recommender: '小林あい', xPost: 'https://x.com/example9', tags: ['記憶術', '暗記法', '学習効率'] },
-    { id: 10, title: '学習の技法', recommender: '加藤雄一', xPost: 'https://x.com/example10', tags: ['学習法', 'スキルアップ', '自己啓発'] },
-  ]
+  // データ取得
+  const { books: recommendedBooks, loading: booksLoading } = useBooks(10)
+  const { bookstores, loading: bookstoresLoading } = useBookstores(10)
+  const { memos, loading: memosLoading } = useMemos(2)
 
   const booksPerSlide = 1
   const totalSlides = recommendedBooks.length
@@ -35,79 +29,6 @@ export default function Home() {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
   }
 
-  // 本屋データ
-  const bookstores = [
-    { 
-      id: 1, 
-      name: '蔦屋書店 代官山店', 
-      location: '東京都渋谷区', 
-      description: '世界で最も美しい書店の一つ。建築と本が融合した空間で、新しい読書体験を提供します。',
-      tags: ['建築', 'カフェ', 'アート']
-    },
-    { 
-      id: 2, 
-      name: '神保町古書センター', 
-      location: '東京都千代田区', 
-      description: '古書の聖地として知られる老舗書店。貴重な古書から最新刊まで幅広く取り揃えています。',
-      tags: ['古書', '歴史', '専門書']
-    },
-    { 
-      id: 3, 
-      name: '本屋B&B', 
-      location: '東京都世田谷区', 
-      description: '本とビールが楽しめるユニークな書店。読書会やイベントも頻繁に開催されています。',
-      tags: ['イベント', 'ビール', 'コミュニティ']
-    },
-    { 
-      id: 4, 
-      name: '森岡書店', 
-      location: '東京都中央区', 
-      description: '1週間に1冊だけを売る革新的な書店。店主の厳選された一冊との出会いが待っています。',
-      tags: ['厳選', '店主推薦', '限定']
-    },
-    { 
-      id: 5, 
-      name: 'ブックファースト 新宿店', 
-      location: '東京都新宿区', 
-      description: '新宿の中心地にある大型書店。最新のベストセラーから専門書まで豊富な品揃えです。',
-      tags: ['大型', 'ベストセラー', 'アクセス良好']
-    },
-    { 
-      id: 6, 
-      name: '三省堂書店 神保町本店', 
-      location: '東京都千代田区', 
-      description: '神保町の老舗書店。学術書や専門書の品揃えが充実しており、研究者にも愛されています。',
-      tags: ['学術書', '専門書', '老舗']
-    },
-    { 
-      id: 7, 
-      name: '代官山 蔦屋書店', 
-      location: '東京都渋谷区', 
-      description: '代官山のランドマーク的存在。本、音楽、映画が融合した複合文化施設です。',
-      tags: ['複合施設', '音楽', '映画']
-    },
-    { 
-      id: 8, 
-      name: '丸善 丸の内本店', 
-      location: '東京都千代田区', 
-      description: '丸の内のビジネス街にある老舗書店。ビジネス書や実用書の品揃えが特に充実しています。',
-      tags: ['ビジネス書', '実用書', 'ビジネス街']
-    },
-    { 
-      id: 9, 
-      name: 'ジュンク堂書店 池袋本店', 
-      location: '東京都豊島区', 
-      description: '池袋の大型書店。文芸書から実用書まで幅広いジャンルをカバーしています。',
-      tags: ['文芸書', '実用書', '大型']
-    },
-    { 
-      id: 10, 
-      name: '有隣堂 横浜店', 
-      location: '神奈川県横浜市', 
-      description: '横浜の老舗書店。地域に根ざした書店として、地元の人々に愛され続けています。',
-      tags: ['地域密着', '老舗', '横浜']
-    }
-  ]
 
   const totalBookstoreSlides = bookstores.length
 
@@ -136,7 +57,7 @@ export default function Home() {
                   <p className="text-base md:text-lg text-blue-100 mb-4 md:mb-6 whitespace-nowrap">
                     あなたの学びをサポートします
                   </p>
-                  <Link href="/onboarding" className="inline-block bg-white text-blue-600 hover:bg-gray-50 font-semibold py-2 px-4 md:px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap text-sm md:text-base">
+                  <Link href="/login" className="inline-block bg-white text-blue-600 hover:bg-gray-50 font-semibold py-2 px-4 md:px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap text-sm md:text-base">
                     はじめる
                   </Link>
                 </div>
@@ -210,55 +131,40 @@ export default function Home() {
               </Link>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* メモカード1 */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-start space-x-4">
-                  <div className="w-16 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <BookOpen className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                      思考の整理学
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-3">外山滋比古</p>
-                    <p className="text-sm text-gray-500 mb-4 line-clamp-3">
-                      思考を整理し、創造的な発想を生み出すための方法論について学んだ。特に「思考の外化」の重要性を理解できた。
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-400">2024年1月15日</span>
-                      <Link href="/memos/1" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                        詳細を見る
-                      </Link>
+            {memosLoading ? (
+              <div className="flex justify-center items-center h-32">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {memos.map((memo, index) => (
+                  <div key={memo.id} className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+                    <div className="flex items-start space-x-4">
+                      <div className={`w-16 h-20 bg-gradient-to-br ${index === 0 ? 'from-blue-100 to-blue-200' : 'from-green-100 to-green-200'} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                        <BookOpen className={`w-8 h-8 ${index === 0 ? 'text-blue-600' : 'text-green-600'}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                          {memo.books?.title || '書籍タイトル'}
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-3">{memo.books?.author || '著者名'}</p>
+                        <p className="text-sm text-gray-500 mb-4 line-clamp-3">
+                          {memo.content}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-400">
+                            {new Date(memo.created_at).toLocaleDateString('ja-JP')}
+                          </span>
+                          <Link href={`/memos/${memo.id}`} className="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                            詳細を見る
+                          </Link>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
-
-              {/* メモカード2 */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-start space-x-4">
-                  <div className="w-16 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <BookOpen className="w-8 h-8 text-green-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                      アウトプット大全
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-3">樺沢紫苑</p>
-                    <p className="text-sm text-gray-500 mb-4 line-clamp-3">
-                      学んだことを確実に身につけるためのアウトプット術について。特に「2週間に3回のアウトプット」の法則が印象的だった。
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-400">2024年1月10日</span>
-                      <Link href="/memos/2" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                        詳細を見る
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
@@ -272,55 +178,63 @@ export default function Home() {
             </h2>
             
             <div className="relative">
-              {/* スライダーコンテナ */}
-              <div className="overflow-hidden">
-                <div 
-                  className="flex transition-transform duration-300 ease-in-out"
-                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                >
-                  {recommendedBooks.map((book, index) => (
-                    <div key={book.id} className="w-full flex-shrink-0">
-                      <div className="flex justify-center">
-                        <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow max-w-sm w-full">
-                          <div className="flex flex-col items-center text-center">
-                            <div className="w-20 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center mb-6">
-                              <BookOpen className="w-10 h-10 text-primary-600" />
-                            </div>
-                            <Link href={`/books/${book.id}`} className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2 hover:text-primary-600 transition-colors">
-                              {book.title}
-                            </Link>
-                            <p className="text-base text-gray-600 mb-4">
-                              推薦者: {book.recommender}
-                            </p>
-                            
-                            {/* タグ */}
-                            <div className="flex flex-wrap gap-2 justify-center mb-6">
-                              {book.tags.map((tag, tagIndex) => (
-                                <span
-                                  key={tagIndex}
-                                  className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-        </div>
+              {booksLoading ? (
+                <div className="flex justify-center items-center h-64">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+                </div>
+              ) : (
+                <>
+                  {/* スライダーコンテナ */}
+                  <div className="overflow-hidden">
+                    <div 
+                      className="flex transition-transform duration-300 ease-in-out"
+                      style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                    >
+                      {recommendedBooks.map((book, index) => (
+                        <div key={book.id} className="w-full flex-shrink-0">
+                          <div className="flex justify-center">
+                            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow max-w-sm w-full">
+                              <div className="flex flex-col items-center text-center">
+                                <div className="w-20 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center mb-6">
+                                  <BookOpen className="w-10 h-10 text-primary-600" />
+                                </div>
+                                <Link href={`/books/${book.id}`} className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2 hover:text-primary-600 transition-colors">
+                                  {book.title}
+                                </Link>
+                                <p className="text-base text-gray-600 mb-4">
+                                  推薦者: {book.recommended_by || 'N/A'}
+                                </p>
+                                
+                                {/* タグ */}
+                                <div className="flex flex-wrap gap-2 justify-center mb-6">
+                                  {book.tags?.map((tag, tagIndex) => (
+                                    <span
+                                      key={tagIndex}
+                                      className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
+                                    >
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
 
-                            <a
-                              href={book.xPost}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center space-x-2 text-primary-600 hover:text-primary-700 transition-colors"
-                            >
-                              <Twitter className="w-5 h-5" />
-                              <span className="font-medium">Xポストを見る</span>
-                            </a>
+                                <a
+                                  href={`https://x.com/search?q=${encodeURIComponent(book.title)}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center space-x-2 text-primary-600 hover:text-primary-700 transition-colors"
+                                >
+                                  <Twitter className="w-5 h-5" />
+                                  <span className="font-medium">Xポストを見る</span>
+                                </a>
+                              </div>
+                            </div>
                           </div>
                         </div>
-          </div>
-          </div>
-                  ))}
-          </div>
-        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
 
               {/* ナビゲーションボタン */}
               <button
@@ -362,53 +276,61 @@ export default function Home() {
             </h2>
             
             <div className="relative">
-              {/* スライダーコンテナ */}
-              <div className="overflow-hidden">
-                <div 
-                  className="flex transition-transform duration-300 ease-in-out"
-                  style={{ transform: `translateX(-${currentBookstoreSlide * 100}%)` }}
-                >
-                  {bookstores.map((bookstore) => (
-                    <div key={bookstore.id} className="w-full flex-shrink-0">
-                      <div className="flex justify-center">
-                        <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow max-w-lg w-full border border-gray-100">
-                          <div className="flex flex-col">
-                            {/* 本屋名と場所 */}
-                            <div className="mb-6">
-                              <Link href={`/bookstores/${bookstore.id}`} className="text-2xl font-bold text-gray-900 mb-2 hover:text-primary-600 transition-colors">
-                                {bookstore.name}
-                              </Link>
-                              <div className="flex items-center text-gray-600">
-                                <MapPin className="w-4 h-4 mr-2" />
-                                <span className="text-base">{bookstore.location}</span>
+              {bookstoresLoading ? (
+                <div className="flex justify-center items-center h-64">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+                </div>
+              ) : (
+                <>
+                  {/* スライダーコンテナ */}
+                  <div className="overflow-hidden">
+                    <div 
+                      className="flex transition-transform duration-300 ease-in-out"
+                      style={{ transform: `translateX(-${currentBookstoreSlide * 100}%)` }}
+                    >
+                      {bookstores.map((bookstore) => (
+                        <div key={bookstore.id} className="w-full flex-shrink-0">
+                          <div className="flex justify-center">
+                            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow max-w-lg w-full border border-gray-100">
+                              <div className="flex flex-col">
+                                {/* 本屋名と場所 */}
+                                <div className="mb-6">
+                                  <Link href={`/bookstores/${bookstore.id}`} className="text-2xl font-bold text-gray-900 mb-2 hover:text-primary-600 transition-colors">
+                                    {bookstore.name}
+                                  </Link>
+                                  <div className="flex items-center text-gray-600">
+                                    <MapPin className="w-4 h-4 mr-2" />
+                                    <span className="text-base">{bookstore.address}</span>
+                                  </div>
+                                </div>
+
+                                {/* 一言紹介 */}
+                                <div className="mb-6">
+                                  <p className="text-gray-700 leading-relaxed">
+                                    {bookstore.description}
+                                  </p>
+                                </div>
+
+                                {/* タグ */}
+                                <div className="flex flex-wrap gap-2">
+                                  {bookstore.tags?.map((tag, index) => (
+                                    <span
+                                      key={index}
+                                      className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
+                                    >
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-
-                            {/* 一言紹介 */}
-                            <div className="mb-6">
-                              <p className="text-gray-700 leading-relaxed">
-                                {bookstore.description}
-                              </p>
-                            </div>
-
-                            {/* タグ */}
-                            <div className="flex flex-wrap gap-2">
-                              {bookstore.tags.map((tag, index) => (
-                                <span
-                                  key={index}
-                                  className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
                             </div>
                           </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
+                </>
+              )}
 
               {/* ナビゲーションボタン */}
               <button

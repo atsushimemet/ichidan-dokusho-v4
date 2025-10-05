@@ -74,6 +74,27 @@ export default function AdminDashboardPage() {
             </button>
           </div>
 
+          {/* Quick Actions */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">クイックアクション</h2>
+            <div className="flex flex-wrap gap-4">
+              <Link
+                href="/admin/books/add"
+                className="flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors shadow-lg hover:shadow-xl"
+              >
+                <BookOpen className="w-5 h-5" />
+                <span>新しい書籍を登録</span>
+              </Link>
+              <Link
+                href="/admin/bookstores/add"
+                className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors shadow-lg hover:shadow-xl"
+              >
+                <Settings className="w-5 h-5" />
+                <span>新しい書店を登録</span>
+              </Link>
+            </div>
+          </div>
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
