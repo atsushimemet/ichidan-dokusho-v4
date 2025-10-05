@@ -1,12 +1,12 @@
 'use client'
 
-import { BookOpen, Calendar, ChevronLeft, ChevronRight, ExternalLink, User, Menu, X } from 'lucide-react'
+import { BookOpen, Calendar, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
+import Navigation from '@/components/Navigation'
 
 export default function BookDetailPage({ params }: { params: { id: string } }) {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   // 書籍詳細データ
   const bookDetailData = {
@@ -94,52 +94,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      {/* Navigation */}
-      <nav className="bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-100 sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center h-20">
-            <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#2663eb' }}>
-                <BookOpen className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <span className="text-2xl font-bold text-gray-900">一段読書</span>
-                <p className="text-xs text-gray-500 -mt-1">Knowledge Loop Edition</p>
-              </div>
-            </Link>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden py-6 border-t border-gray-100 bg-white/95 backdrop-blur-sm">
-            <div className="flex flex-col space-y-4">
-              <Link href="/" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
-                ホーム
-              </Link>
-              <Link href="/memos" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
-                みんなのメモ
-              </Link>
-              <Link href="/books" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
-                書籍一覧
-              </Link>
-              <Link href="/bookstores" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
-                店舗一覧
-              </Link>
-            </div>
-          </div>
-        )}
-      </nav>
+      <Navigation />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
