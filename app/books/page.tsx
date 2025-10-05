@@ -6,6 +6,7 @@ import { useState } from 'react'
 
 export default function BooksPage() {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [selectedTag, setSelectedTag] = useState<string | null>(null)
 
   // 書籍データ（ホーム画面と同じ）
   const books = [
@@ -81,7 +82,15 @@ export default function BooksPage() {
     }
   ]
 
-  const totalSlides = books.length
+  // 全タグを取得
+  const allTags = Array.from(new Set(books.flatMap(book => book.tags)))
+
+  // フィルタリングされた書籍
+  const filteredBooks = selectedTag 
+    ? books.filter(book => book.tags.includes(selectedTag))
+    : books
+
+  const totalSlides = filteredBooks.length
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % totalSlides)
@@ -89,6 +98,11 @@ export default function BooksPage() {
 
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
+  }
+
+  const handleTagSelect = (tag: string | null) => {
+    setSelectedTag(tag)
+    setCurrentSlide(0) // フィルタ変更時に最初のスライドに戻る
   }
 
   return (
@@ -118,13 +132,48 @@ export default function BooksPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               書籍一覧
             </h1>
             <p className="text-lg text-gray-600">
               おすすめの書籍をチェックして、あなたの読書ライフを豊かにしましょう
             </p>
+          </div>
+
+          {/* Tag Filter */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-8">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">タグでフィルタ</h2>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => handleTagSelect(null)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  selectedTag === null
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                すべて
+              </button>
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => handleTagSelect(tag)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    selectedTag === tag
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+            {selectedTag && (
+              <div className="mt-4 text-sm text-gray-600">
+                「{selectedTag}」でフィルタ中 ({filteredBooks.length}件)
+              </div>
+            )}
           </div>
 
           {/* Books Slider */}
@@ -135,7 +184,7 @@ export default function BooksPage() {
                   className="flex transition-transform duration-300 ease-in-out"
                   style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                 >
-                  {books.map((book) => (
+                  {filteredBooks.map((book) => (
                     <div key={book.id} className="w-full flex-shrink-0">
                       <div className="flex justify-center">
                         <div className="bg-gray-50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow max-w-sm w-full">
