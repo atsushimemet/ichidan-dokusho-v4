@@ -106,11 +106,11 @@ export default function OnboardingPage() {
     console.log('Onboarding completed:', selectedAnswers)
     setShowPopup(true)
     
-    // 1.5秒後にポップアップを非表示にして、おすすめ書籍を表示
+    // 1秒後にポップアップを非表示にして、おすすめ書籍を表示
     setTimeout(() => {
       setShowPopup(false)
       setIsCompleted(true)
-    }, 1500)
+    }, 1000)
   }
 
   return (
