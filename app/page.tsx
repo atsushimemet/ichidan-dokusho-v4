@@ -4,7 +4,7 @@ import BookList from '@/components/BookList'
 import MemoForm from '@/components/MemoForm'
 import Navigation from '@/components/Navigation'
 import QuizSection from '@/components/QuizSection'
-import { ArrowRight, BookOpen, Brain, Clock, RefreshCw, Target, TrendingUp } from 'lucide-react'
+import { ArrowRight, BarChart3, BookOpen, Brain, Clock, FileText, HelpCircle, RefreshCw, Target, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Home() {
@@ -35,6 +35,51 @@ export default function Home() {
                   <div className="w-16 h-16 md:w-20 md:h-20 bg-white/20 rounded-xl flex items-center justify-center">
                     <BookOpen className="w-8 h-8 md:w-10 md:h-10 text-white" />
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Learning Dashboard */}
+      <section className="py-12 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 text-center">
+              学びのダッシュボード
+            </h2>
+            <div className="grid grid-cols-3 gap-3 md:gap-6">
+              {/* メモ数 */}
+              <div className="bg-white rounded-xl md:rounded-2xl p-3 md:p-6 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-8 h-8 md:w-12 md:h-12 bg-blue-100 rounded-lg md:rounded-xl flex items-center justify-center mb-2 md:mb-4">
+                    <FileText className="w-4 h-4 md:w-6 md:h-6 text-blue-600" />
+                  </div>
+                  <div className="text-lg md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">24</div>
+                  <div className="text-xs md:text-base text-gray-600 font-medium">メモ数</div>
+                </div>
+              </div>
+
+              {/* クイズ数 */}
+              <div className="bg-white rounded-xl md:rounded-2xl p-3 md:p-6 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-8 h-8 md:w-12 md:h-12 bg-green-100 rounded-lg md:rounded-xl flex items-center justify-center mb-2 md:mb-4">
+                    <HelpCircle className="w-4 h-4 md:w-6 md:h-6 text-green-600" />
+                  </div>
+                  <div className="text-lg md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">18</div>
+                  <div className="text-xs md:text-base text-gray-600 font-medium">クイズ数</div>
+                </div>
+              </div>
+
+              {/* 正答率 */}
+              <div className="bg-white rounded-xl md:rounded-2xl p-3 md:p-6 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-8 h-8 md:w-12 md:h-12 bg-purple-100 rounded-lg md:rounded-xl flex items-center justify-center mb-2 md:mb-4">
+                    <BarChart3 className="w-4 h-4 md:w-6 md:h-6 text-purple-600" />
+                  </div>
+                  <div className="text-lg md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">85%</div>
+                  <div className="text-xs md:text-base text-gray-600 font-medium">正答率</div>
                 </div>
               </div>
             </div>
