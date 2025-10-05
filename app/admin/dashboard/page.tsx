@@ -3,14 +3,27 @@
 import Navigation from '@/components/Navigation'
 import { BarChart3, BookOpen, FileText, LogOut, Settings, Users } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function AdminDashboardPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true) // 実際の実装では認証状態を確認
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  // ページ読み込み時にlocalStorageからログイン状態を確認
+  useEffect(() => {
+    const adminLoginStatus = localStorage.getItem('adminLoggedIn')
+    if (adminLoginStatus === 'true') {
+      setIsLoggedIn(true)
+    } else {
+      // ログインしていない場合はログインページにリダイレクト
+      window.location.href = '/admin/login'
+    }
+  }, [])
 
   const handleLogout = () => {
+    // localStorageからログイン状態を削除
+    localStorage.removeItem('adminLoggedIn')
     setIsLoggedIn(false)
-    // 実際の実装では認証トークンを削除
+    // ログインページにリダイレクト
     window.location.href = '/admin/login'
   }
 

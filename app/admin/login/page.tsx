@@ -3,9 +3,11 @@
 import Navigation from '@/components/Navigation'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function AdminLoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -13,12 +15,23 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
+  // ページ読み込み時にlocalStorageからログイン状態を確認
+  useEffect(() => {
+    const adminLoginStatus = localStorage.getItem('adminLoggedIn')
+    if (adminLoginStatus === 'true') {
+      // 既にログイン済みの場合はダッシュボードにリダイレクト
+      router.push('/admin/dashboard')
+    }
+  }, [router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError('')
 
     try {
+      console.log('Sending login request:', { email, password })
+      
       // 環境変数から管理者認証情報を取得
       const response = await fetch('/api/admin/login', {
         method: 'POST',
@@ -28,16 +41,22 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ email, password }),
       })
 
+      console.log('Response status:', response.status)
       const data = await response.json()
+      console.log('Response data:', data)
 
       if (response.ok) {
-        setIsLoggedIn(true)
+        console.log('Login successful, redirecting...')
+        // localStorageにログイン状態を保存
+        localStorage.setItem('adminLoggedIn', 'true')
         // 管理者ダッシュボードにリダイレクト
-        window.location.href = '/admin/dashboard'
+        router.push('/admin/dashboard')
       } else {
+        console.log('Login failed:', data.message)
         setError(data.message || 'ログインに失敗しました')
       }
     } catch (err) {
+      console.error('Login error:', err)
       setError('ログインに失敗しました')
     } finally {
       setIsLoading(false)
