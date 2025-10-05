@@ -220,9 +220,12 @@ export default function MemoListPage() {
                         <span>{memo.recommender}</span>
                       </div>
                     </div>
-                    <button className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                    <Link 
+                      href={`/memos/${memo.id}`}
+                      className="block w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center"
+                    >
                       詳細を見る
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
