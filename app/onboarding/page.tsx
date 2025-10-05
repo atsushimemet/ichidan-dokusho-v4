@@ -1,12 +1,45 @@
 'use client'
 
-import { BookOpen, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowDown, BookOpen, CheckCircle, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: number | null }>({})
+  const [isCompleted, setIsCompleted] = useState(false)
+  const [showPopup, setShowPopup] = useState(false)
+
+  // おすすめ書籍データ
+  const recommendedBooks = [
+    {
+      id: 1,
+      title: '思考の整理学',
+      author: '外山滋比古',
+      amazonLink: 'https://amazon.co.jp/dp/4480020470',
+      kindleLink: 'https://amazon.co.jp/dp/B00J8XQZ8K',
+      audibleLink: 'https://amazon.co.jp/dp/B00J8XQZ8K',
+      summaryLink: 'https://example.com/summary1'
+    },
+    {
+      id: 2,
+      title: 'アウトプット大全',
+      author: '樺沢紫苑',
+      amazonLink: 'https://amazon.co.jp/dp/4046047622',
+      kindleLink: 'https://amazon.co.jp/dp/B07D4BQZ8K',
+      audibleLink: 'https://amazon.co.jp/dp/B07D4BQZ8K',
+      summaryLink: 'https://example.com/summary2'
+    },
+    {
+      id: 3,
+      title: 'デジタル時代の読書術',
+      author: '佐藤優',
+      amazonLink: 'https://amazon.co.jp/dp/4040820000',
+      kindleLink: 'https://amazon.co.jp/dp/B00J8XQZ8K',
+      audibleLink: 'https://amazon.co.jp/dp/B00J8XQZ8K',
+      summaryLink: 'https://example.com/summary3'
+    }
+  ]
 
   const questions = [
     {
@@ -71,7 +104,13 @@ export default function OnboardingPage() {
   const handleComplete = () => {
     // オンボーディング完了後の処理
     console.log('Onboarding completed:', selectedAnswers)
-    // ここでホームページにリダイレクトするか、結果を保存する
+    setShowPopup(true)
+    
+    // 1.5秒後にポップアップを非表示にして、おすすめ書籍を表示
+    setTimeout(() => {
+      setShowPopup(false)
+      setIsCompleted(true)
+    }, 1500)
   }
 
   return (
@@ -100,7 +139,7 @@ export default function OnboardingPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -202,6 +241,136 @@ export default function OnboardingPage() {
               )}
             </div>
           </div>
+
+          {/* Recommended Books Section */}
+          {isCompleted && (
+            <div className="mt-12">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+                  あなたにおすすめの本
+                </h2>
+                <p className="text-lg text-gray-600">
+                  あなたの読書スタイルに基づいて厳選した3冊をご紹介します
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {recommendedBooks.map((book) => (
+                  <div key={book.id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <div className="text-center mb-6">
+                      {/* Book Image */}
+                      <div className="w-24 h-32 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <BookOpen className="w-12 h-12 text-primary-600" />
+                      </div>
+                      
+                      {/* Book Info */}
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {book.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        {book.author}
+                      </p>
+                    </div>
+
+                    {/* Reading Options */}
+                    <div className="space-y-3 mb-6">
+                      <h4 className="text-sm font-semibold text-gray-800 mb-3">読み方</h4>
+                      
+                      <a
+                        href={book.amazonLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="text-sm font-medium text-gray-700">紙の本</span>
+                        <ExternalLink className="w-4 h-4 text-gray-500" />
+                      </a>
+                      
+                      <a
+                        href={book.kindleLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="text-sm font-medium text-gray-700">電子書籍</span>
+                        <ExternalLink className="w-4 h-4 text-gray-500" />
+                      </a>
+                      
+                      <a
+                        href={book.audibleLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="text-sm font-medium text-gray-700">オーディオブック</span>
+                        <ExternalLink className="w-4 h-4 text-gray-500" />
+                      </a>
+                      
+                      <a
+                        href={book.summaryLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="text-sm font-medium text-gray-700">要約</span>
+                        <ExternalLink className="w-4 h-4 text-gray-500" />
+                      </a>
+                    </div>
+
+                    {/* Detail Button */}
+                    <Link
+                      href={`/memos/${book.id}`}
+                      className="block w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center"
+                    >
+                      詳細を見る
+                    </Link>
+                  </div>
+                ))}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="text-center mt-8">
+                <Link
+                  href="/"
+                  className="inline-flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors duration-200"
+                >
+                  <span>ホームに戻る</span>
+                  <ChevronRight className="w-5 h-5" />
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Completion Popup */}
+          {showPopup && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-2xl p-8 mx-4 max-w-md w-full shadow-2xl animate-fade-in">
+                <div className="text-center">
+                  {/* Success Icon */}
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle className="w-10 h-10 text-green-600" />
+                  </div>
+                  
+                  {/* Success Message */}
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                    設定完了！
+                  </h3>
+                  <p className="text-lg text-gray-600 mb-6">
+                    あなたの読書スタイルに基づいて<br />
+                    おすすめの本を準備しました
+                  </p>
+                  
+                  {/* Arrow Down Animation */}
+                  <div className="flex flex-col items-center">
+                    <p className="text-sm text-gray-500 mb-4">下にスクロールしてご確認ください</p>
+                    <div className="animate-bounce">
+                      <ArrowDown className="w-8 h-8 text-primary-600" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
