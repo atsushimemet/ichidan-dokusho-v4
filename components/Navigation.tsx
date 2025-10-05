@@ -1,6 +1,7 @@
 'use client'
 
 import { BookOpen, LogOut, Menu, User, X } from 'lucide-react'
+import Link from 'next/link'
 import { useState } from 'react'
 
 export default function Navigation() {
@@ -12,7 +13,7 @@ export default function Navigation() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
+          <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#2663eb' }}>
               <BookOpen className="w-6 h-6 text-white" />
             </div>
@@ -20,7 +21,7 @@ export default function Navigation() {
               <span className="text-2xl font-bold text-gray-900">一段読書</span>
               <p className="text-xs text-gray-500 -mt-1">Knowledge Loop Edition</p>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">

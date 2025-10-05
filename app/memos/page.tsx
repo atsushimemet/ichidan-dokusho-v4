@@ -86,7 +86,7 @@ export default function MemoListPage() {
       <nav className="bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-3">
+            <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#2663eb' }}>
                 <BookOpen className="w-6 h-6 text-white" />
               </div>
@@ -94,7 +94,7 @@ export default function MemoListPage() {
                 <span className="text-2xl font-bold text-gray-900">一段読書</span>
                 <p className="text-xs text-gray-500 -mt-1">Knowledge Loop Edition</p>
               </div>
-            </div>
+            </Link>
             
             <Link href="/" className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors">
               <ChevronLeft className="w-5 h-5" />
