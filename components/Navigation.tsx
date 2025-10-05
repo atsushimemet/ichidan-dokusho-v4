@@ -96,6 +96,12 @@ export default function Navigation() {
                 店舗一覧
               </Link>
               
+              <div className="pt-2 border-t border-gray-100">
+                <Link href="/admin/login" className="text-gray-500 hover:text-gray-700 font-medium py-2 transition-colors text-sm">
+                  管理者ログイン
+                </Link>
+              </div>
+              
               <div className="pt-4 border-t border-gray-100">
                 {isLoggedIn ? (
                   <div className="space-y-3">
