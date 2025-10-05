@@ -1,6 +1,6 @@
 'use client'
 
-import { BookOpen, ChevronDown, ChevronLeft, ChevronUp } from 'lucide-react'
+import { BookOpen, ChevronDown, ChevronLeft, ChevronUp, RotateCcw } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -39,6 +39,10 @@ export default function MemoDetailPage({ params }: { params: { id: string } }) {
   const handleShowAnswer = () => {
     setShowAnswer(true)
     setIsAnswerOpen(true)
+  }
+
+  const handleRetry = () => {
+    window.location.reload()
   }
 
   const isCorrect = selectedAnswer === memoDetailData.quiz.correctAnswer
@@ -227,6 +231,19 @@ export default function MemoDetailPage({ params }: { params: { id: string } }) {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Retry Button */}
+          {showAnswer && (
+            <div className="mt-8 text-center">
+              <button
+                onClick={handleRetry}
+                className="inline-flex items-center space-x-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200"
+              >
+                <RotateCcw className="w-5 h-5" />
+                <span>もう一度</span>
+              </button>
             </div>
           )}
         </div>
