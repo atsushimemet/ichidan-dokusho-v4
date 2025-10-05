@@ -136,9 +136,9 @@ export default function Home() {
                   <p className="text-base md:text-lg text-blue-100 mb-4 md:mb-6 whitespace-nowrap">
                     あなたの学びをサポートします
                   </p>
-                  <button className="bg-white text-blue-600 hover:bg-gray-50 font-semibold py-2 px-4 md:px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap text-sm md:text-base">
+                  <Link href="/onboarding" className="inline-block bg-white text-blue-600 hover:bg-gray-50 font-semibold py-2 px-4 md:px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap text-sm md:text-base">
                     はじめる
-                  </button>
+                  </Link>
                 </div>
                 <div className="flex-shrink-0">
                   <div className="w-16 h-16 md:w-20 md:h-20 bg-white/20 rounded-xl flex items-center justify-center">
@@ -227,9 +227,9 @@ export default function Home() {
                     </p>
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-400">2024年1月15日</span>
-                      <button className="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                      <Link href="/memos/1" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
                         詳細を見る
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -251,9 +251,9 @@ export default function Home() {
                     </p>
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-400">2024年1月10日</span>
-                      <button className="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                      <Link href="/memos/2" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
                         詳細を見る
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
