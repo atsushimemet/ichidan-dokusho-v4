@@ -45,10 +45,10 @@ export default function AdminDashboardPage() {
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-1">
                 管理者ダッシュボード
               </h1>
-              <p className="text-gray-600">
+              <p className="text-sm md:text-base text-gray-600">
                 システムの管理と監視を行います
               </p>
             </div>
@@ -57,7 +57,7 @@ export default function AdminDashboardPage() {
               className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
             >
               <LogOut className="w-4 h-4" />
-              <span>ログアウト</span>
+              <span className="hidden md:inline">ログアウト</span>
             </button>
           </div>
 
