@@ -2,93 +2,60 @@
 
 import { BookOpen, ChevronLeft, ChevronRight, Twitter } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navigation from '@/components/Navigation'
+
+interface Book {
+  id: string
+  title: string
+  author: string
+  description?: string
+  tags?: string[]
+  recommended_by_post_url?: string
+  amazon_paper_url?: string
+  amazon_ebook_url?: string
+  amazon_audiobook_url?: string
+  summary_text_url?: string
+  summary_video_url?: string
+  cover_image_url?: string
+  created_at: string
+}
 
 export default function BooksPage() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  const [books, setBooks] = useState<Book[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // 書籍データ（ホーム画面と同じ）
-  const books = [
-    {
-      id: 1,
-      title: '思考の整理学',
-      recommender: '田中太郎',
-      tags: ['思考法', '整理術', '創造性'],
-      xPost: 'https://twitter.com/example1'
-    },
-    {
-      id: 2,
-      title: 'アウトプット大全',
-      recommender: '佐藤花子',
-      tags: ['学習法', 'アウトプット', '記憶'],
-      xPost: 'https://twitter.com/example2'
-    },
-    {
-      id: 3,
-      title: 'デジタル時代の読書術',
-      recommender: '山田次郎',
-      tags: ['読書術', 'デジタル', '情報処理'],
-      xPost: 'https://twitter.com/example3'
-    },
-    {
-      id: 4,
-      title: '知的生産の技術',
-      recommender: '鈴木一郎',
-      tags: ['知的生産', '情報整理', '研究法'],
-      xPost: 'https://twitter.com/example4'
-    },
-    {
-      id: 5,
-      title: '読書について',
-      recommender: '高橋美咲',
-      tags: ['読書論', '哲学', '古典'],
-      xPost: 'https://twitter.com/example5'
-    },
-    {
-      id: 6,
-      title: '本を読む本',
-      recommender: '伊藤健太',
-      tags: ['読書法', '古典', '名著'],
-      xPost: 'https://twitter.com/example6'
-    },
-    {
-      id: 7,
-      title: '速読術',
-      recommender: '渡辺真理',
-      tags: ['速読', '効率化', '学習法'],
-      xPost: 'https://twitter.com/example7'
-    },
-    {
-      id: 8,
-      title: '記憶術',
-      recommender: '中村直樹',
-      tags: ['記憶', '学習法', '脳科学'],
-      xPost: 'https://twitter.com/example8'
-    },
-    {
-      id: 9,
-      title: '集中力',
-      recommender: '小林恵子',
-      tags: ['集中力', '生産性', '心理学'],
-      xPost: 'https://twitter.com/example9'
-    },
-    {
-      id: 10,
-      title: '習慣の力',
-      recommender: '加藤大輔',
-      tags: ['習慣', '自己改善', '心理学'],
-      xPost: 'https://twitter.com/example10'
+  // 書籍データをAPIから取得
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch('/api/books')
+        if (!response.ok) {
+          throw new Error('Failed to fetch books')
+        }
+        const data = await response.json()
+        setBooks(data.books || [])
+      } catch (err) {
+        console.error('Error fetching books:', err)
+        setError('書籍データの取得に失敗しました')
+      } finally {
+        setIsLoading(false)
+      }
     }
-  ]
+
+    fetchBooks()
+  }, [])
 
   // 全タグを取得
-  const allTags = Array.from(new Set(books.flatMap(book => book.tags)))
+  const allTags = Array.from(new Set(books.flatMap(book => book.tags || [])))
 
   // フィルタリングされた書籍
   const filteredBooks = selectedTag 
-    ? books.filter(book => book.tags.includes(selectedTag))
+    ? books.filter(book => book.tags?.includes(selectedTag))
     : books
 
   const totalSlides = filteredBooks.length
@@ -104,6 +71,40 @@ export default function BooksPage() {
   const handleTagSelect = (tag: string | null) => {
     setSelectedTag(tag)
     setCurrentSlide(0) // フィルタ変更時に最初のスライドに戻る
+  }
+
+  // ローディング状態
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <Navigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center">
+              <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">読み込み中...</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // エラー状態
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <Navigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">エラーが発生しました</h2>
+              <p className="text-gray-600">{error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -177,31 +178,40 @@ export default function BooksPage() {
                             <Link href={`/books/${book.id}`} className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2 hover:text-primary-600 transition-colors">
                               {book.title}
                             </Link>
-                            <p className="text-base text-gray-600 mb-4">
-                              推薦者: {book.recommender}
+                            <p className="text-base text-gray-600 mb-2">
+                              著者: {book.author}
                             </p>
+                            {book.description && (
+                              <p className="text-sm text-gray-500 mb-4 line-clamp-2">
+                                {book.description}
+                              </p>
+                            )}
                             
                             {/* Tags */}
-                            <div className="flex flex-wrap gap-2 justify-center mb-6">
-                              {book.tags.map((tag, tagIndex) => (
-                                <span
-                                  key={tagIndex}
-                                  className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
+                            {book.tags && book.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-2 justify-center mb-6">
+                                {book.tags.map((tag, tagIndex) => (
+                                  <span
+                                    key={tagIndex}
+                                    className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
 
-                            <a
-                              href={book.xPost}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center space-x-2 text-primary-600 hover:text-primary-700 transition-colors"
-                            >
-                              <Twitter className="w-5 h-5" />
-                              <span className="font-medium">Xポストを見る</span>
-                            </a>
+                            {book.recommended_by_post_url && (
+                              <a
+                                href={book.recommended_by_post_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center space-x-2 text-primary-600 hover:text-primary-700 transition-colors"
+                              >
+                                <Twitter className="w-5 h-5" />
+                                <span className="font-medium">推薦ポストを見る</span>
+                              </a>
+                            )}
                           </div>
                         </div>
                       </div>
