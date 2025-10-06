@@ -234,7 +234,7 @@ export default function AddBookPage() {
               {/* Description */}
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                  書籍の概要
+                  書籍の概要 <span className="text-gray-500 text-sm">(任意)</span>
                 </label>
                 <textarea
                   id="description"
@@ -272,7 +272,7 @@ export default function AddBookPage() {
                 {/* Amazon Ebook */}
                 <div>
                   <label htmlFor="amazon_ebook_url" className="block text-sm font-medium text-gray-700 mb-2">
-                    Amazonのリンク.電子書籍
+                    Amazonのリンク.電子書籍 <span className="text-gray-500 text-sm">(任意)</span>
                   </label>
                   <input
                     type="url"
@@ -283,12 +283,13 @@ export default function AddBookPage() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
                     placeholder="https://www.amazon.co.jp/dp/B08XXXXXXX/"
                   />
+                  <p className="text-sm text-gray-500 mt-1">電子書籍のAmazon URLを入力してください（任意項目）</p>
                 </div>
 
                 {/* Amazon Audiobook */}
                 <div>
                   <label htmlFor="amazon_audiobook_url" className="block text-sm font-medium text-gray-700 mb-2">
-                    Amazonのリンク.オーディオブック
+                    Amazonのリンク.オーディオブック <span className="text-gray-500 text-sm">(任意)</span>
                   </label>
                   <input
                     type="url"
@@ -299,6 +300,7 @@ export default function AddBookPage() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
                     placeholder="https://www.amazon.co.jp/dp/B08XXXXXXX/"
                   />
+                  <p className="text-sm text-gray-500 mt-1">オーディオブックのAmazon URLを入力してください（任意項目）</p>
                 </div>
               </div>
 
@@ -309,7 +311,7 @@ export default function AddBookPage() {
                 {/* Summary Text URL */}
                 <div>
                   <label htmlFor="summary_text_url" className="block text-sm font-medium text-gray-700 mb-2">
-                    要約のリンク.テキスト
+                    要約のリンク.テキスト <span className="text-gray-500 text-sm">(任意)</span>
                   </label>
                   <input
                     type="url"
@@ -320,13 +322,13 @@ export default function AddBookPage() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
                     placeholder="https://note.com/username/n/xxxxx"
                   />
-                  <p className="text-sm text-gray-500 mt-1">noteなどのテキスト要約のリンクを入力してください</p>
+                  <p className="text-sm text-gray-500 mt-1">noteなどのテキスト要約のリンクを入力してください（任意項目）</p>
                 </div>
 
                 {/* Summary Video URL */}
                 <div>
                   <label htmlFor="summary_video_url" className="block text-sm font-medium text-gray-700 mb-2">
-                    要約のリンク.動画
+                    要約のリンク.動画 <span className="text-gray-500 text-sm">(任意)</span>
                   </label>
                   <input
                     type="url"
@@ -337,13 +339,13 @@ export default function AddBookPage() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
                     placeholder="https://www.youtube.com/watch?v=xxxxx"
                   />
-                  <p className="text-sm text-gray-500 mt-1">YouTubeなどの動画要約のリンクを入力してください</p>
+                  <p className="text-sm text-gray-500 mt-1">YouTubeなどの動画要約のリンクを入力してください（任意項目）</p>
                 </div>
 
                 {/* Recommended By Post URL */}
                 <div>
                   <label htmlFor="recommended_by_post_url" className="block text-sm font-medium text-gray-700 mb-2">
-                    推薦者のポストURL
+                    推薦者のポストURL <span className="text-gray-500 text-sm">(任意)</span>
                   </label>
                   <input
                     type="url"
@@ -354,13 +356,13 @@ export default function AddBookPage() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
                     placeholder="https://twitter.com/username/status/xxxxx"
                   />
-                  <p className="text-sm text-gray-500 mt-1">推薦者のSNSポストやブログ記事のURLを入力してください</p>
+                  <p className="text-sm text-gray-500 mt-1">推薦者のSNSポストやブログ記事のURLを入力してください（任意項目）</p>
                 </div>
 
                 {/* Tags */}
                 <div>
                   <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
-                    タグ
+                    タグ <span className="text-gray-500 text-sm">(任意)</span>
                   </label>
                   <input
                     type="text"
@@ -371,7 +373,7 @@ export default function AddBookPage() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
                     placeholder="思考法, 整理術, 創造性"
                   />
-                  <p className="text-sm text-gray-500 mt-1">複数のタグはカンマ（,）で区切ってください</p>
+                  <p className="text-sm text-gray-500 mt-1">複数のタグはカンマ（,）で区切ってください（任意項目）</p>
                 </div>
               </div>
 
