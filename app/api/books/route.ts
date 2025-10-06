@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
@@ -9,7 +10,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category')
     const search = searchParams.get('search')
 
-    const supabase = createServerSupabaseClient()
+    const supabase = createAdminSupabaseClient()
     
     let query = supabase
       .from('books')
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Creating book with data:', { title, author, description })
 
-    const supabase = createServerSupabaseClient()
+    const supabase = createAdminSupabaseClient()
     
     // まず、基本的なフィールドのみで挿入を試行（既存のスキーマに合わせる）
     const insertData: any = {

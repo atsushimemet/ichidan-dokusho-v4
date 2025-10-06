@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
@@ -6,7 +7,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = createAdminSupabaseClient()
     
     const { data, error } = await supabase
       .from('books')
