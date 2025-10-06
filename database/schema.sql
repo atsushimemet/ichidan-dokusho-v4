@@ -17,11 +17,14 @@ CREATE TABLE IF NOT EXISTS books (
   title TEXT NOT NULL,
   author TEXT NOT NULL,
   description TEXT,
-  isbn TEXT,
-  cover_image_url TEXT,
-  category TEXT,
+  amazon_paper_url TEXT,
+  amazon_ebook_url TEXT,
+  amazon_audiobook_url TEXT,
+  summary_text_url TEXT,
+  summary_video_url TEXT,
+  recommended_by_post_url TEXT,
   tags TEXT[],
-  recommended_by TEXT,
+  cover_image_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

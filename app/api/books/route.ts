@@ -42,7 +42,19 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { title, author, description, isbn, cover_image_url, category, tags, recommended_by } = body
+    const { 
+      title, 
+      author, 
+      description, 
+      amazon_paper_url, 
+      amazon_ebook_url, 
+      amazon_audiobook_url, 
+      summary_text_url, 
+      summary_video_url, 
+      recommended_by_post_url,
+      tags,
+      cover_image_url 
+    } = body
 
     const supabase = createServerSupabaseClient()
     
@@ -53,11 +65,14 @@ export async function POST(request: NextRequest) {
           title,
           author,
           description,
-          isbn,
-          cover_image_url,
-          category,
+          amazon_paper_url,
+          amazon_ebook_url,
+          amazon_audiobook_url,
+          summary_text_url,
+          summary_video_url,
+          recommended_by_post_url,
           tags,
-          recommended_by
+          cover_image_url
         }
       ])
       .select()
