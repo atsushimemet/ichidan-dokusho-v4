@@ -5,6 +5,32 @@ import { BookOpen, Calendar, ChevronRight, ExternalLink, User } from 'lucide-rea
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
+// ASIN抽出関数
+function extractASIN(url: string): string | null {
+  if (!url) return null
+  
+  // Amazon URLからASINを抽出
+  const patterns = [
+    /\/dp\/([A-Z0-9]{10})/,  // /dp/ASIN
+    /\/product\/([A-Z0-9]{10})/,  // /product/ASIN
+    /\/gp\/product\/([A-Z0-9]{10})/,  // /gp/product/ASIN
+  ]
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match) {
+      return match[1]
+    }
+  }
+  
+  return null
+}
+
+// Amazon画像URL生成関数
+function generateAmazonImageUrl(asin: string): string {
+  return `https://images-na.ssl-images-amazon.com/images/P/${asin}.09.MZZZZZZZ`
+}
+
 interface Book {
   id: string
   title: string
@@ -167,9 +193,29 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
             <div className="flex flex-col md:flex-row items-start space-y-6 md:space-y-0 md:space-x-8">
               {/* Book Image */}
               <div className="flex-shrink-0 mx-auto md:mx-0">
-                <div className="w-24 h-32 md:w-32 md:h-40 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center">
-                  <BookOpen className="w-8 h-8 md:w-10 md:h-10 text-primary-600" />
-                </div>
+                {book.amazon_paper_url && extractASIN(book.amazon_paper_url) ? (
+                  <div className="w-24 h-32 md:w-32 md:h-40">
+                    <img
+                      src={generateAmazonImageUrl(extractASIN(book.amazon_paper_url)!)}
+                      alt={book.title}
+                      className="w-full h-full object-cover rounded-xl shadow-lg"
+                      onError={(e) => {
+                        // 画像読み込みエラー時はデフォルトアイコンを表示
+                        const target = e.target as HTMLImageElement
+                        target.style.display = 'none'
+                        const fallback = target.nextElementSibling as HTMLElement
+                        if (fallback) fallback.style.display = 'flex'
+                      }}
+                    />
+                    <div className="w-24 h-32 md:w-32 md:h-40 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center hidden">
+                      <BookOpen className="w-8 h-8 md:w-10 md:h-10 text-primary-600" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-24 h-32 md:w-32 md:h-40 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center">
+                    <BookOpen className="w-8 h-8 md:w-10 md:h-10 text-primary-600" />
+                  </div>
+                )}
               </div>
               
               {/* Book Details */}
