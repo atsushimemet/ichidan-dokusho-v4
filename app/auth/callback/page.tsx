@@ -24,9 +24,13 @@ export default function AuthCallbackPage() {
             console.log('Auth state change:', event, session?.user?.email)
             
             if (event === 'SIGNED_IN' && session) {
-              console.log('認証成功、リダイレクト中:', redirectTo)
+              console.log('認証成功、localStorageに保存中:', redirectTo)
+              // localStorageにユーザー情報を保存
+              localStorage.setItem('ichidan_user', JSON.stringify(session.user))
               router.push(redirectTo)
             } else if (event === 'SIGNED_OUT') {
+              // localStorageをクリア
+              localStorage.removeItem('ichidan_user')
               setError('認証に失敗しました。')
               setTimeout(() => {
                 router.push('/login?error=auth_failed')
@@ -45,7 +49,9 @@ export default function AuthCallbackPage() {
             router.push('/login?error=session_error')
           }, 3000)
         } else if (session) {
-          console.log('既存セッション確認、リダイレクト中:', redirectTo)
+          console.log('既存セッション確認、localStorageに保存中:', redirectTo)
+          // localStorageにユーザー情報を保存
+          localStorage.setItem('ichidan_user', JSON.stringify(session.user))
           router.push(redirectTo)
         }
 

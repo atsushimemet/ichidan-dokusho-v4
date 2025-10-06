@@ -1,6 +1,7 @@
 'use client'
 
 import Navigation from '@/components/Navigation'
+import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { ArrowLeft, Mail, Send } from 'lucide-react'
 import Link from 'next/link'
@@ -14,22 +15,16 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const { user } = useAuth()
 
   const redirectTo = searchParams.get('redirectTo') || '/'
 
   useEffect(() => {
-    const supabase = createClient()
-    
     // 既にログイン済みかチェック
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        router.push(redirectTo)
-      }
+    if (user) {
+      router.push(redirectTo)
     }
-    
-    checkUser()
-  }, [router, redirectTo])
+  }, [user, router, redirectTo])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
