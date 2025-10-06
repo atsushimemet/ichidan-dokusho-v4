@@ -6,20 +6,19 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 export default function AdminDashboardPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    // 初期化時にログイン状態をチェック
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('adminLoggedIn') === 'true'
-    }
-    return false
-  })
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
-  // ログイン状態のチェック（初回のみ）
+  // クライアントサイドでの初期化
   useEffect(() => {
-    if (!isLoggedIn) {
+    setIsClient(true)
+    const adminLoginStatus = localStorage.getItem('adminLoggedIn')
+    if (adminLoginStatus === 'true') {
+      setIsLoggedIn(true)
+    } else {
       window.location.href = '/admin/login'
     }
-  }, [isLoggedIn])
+  }, [])
 
   const handleLogout = () => {
     // localStorageからログイン状態を削除
@@ -27,6 +26,23 @@ export default function AdminDashboardPage() {
     setIsLoggedIn(false)
     // ログインページにリダイレクト
     window.location.href = '/admin/login'
+  }
+
+  // クライアントサイドでのレンダリングを待つ
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <Navigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-md mx-auto">
+            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 text-center">
+              <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">読み込み中...</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (!isLoggedIn) {
