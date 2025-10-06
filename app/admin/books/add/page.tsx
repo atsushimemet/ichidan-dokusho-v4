@@ -234,13 +234,14 @@ export default function AddBookPage() {
               {/* Description */}
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                  書籍の概要 <span className="text-gray-500 text-sm">(任意)</span>
+                  書籍の概要 <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   id="description"
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
+                  required
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
                   placeholder="書籍の概要を入力"
@@ -345,7 +346,7 @@ export default function AddBookPage() {
                 {/* Recommended By Post URL */}
                 <div>
                   <label htmlFor="recommended_by_post_url" className="block text-sm font-medium text-gray-700 mb-2">
-                    推薦者のポストURL <span className="text-gray-500 text-sm">(任意)</span>
+                    推薦者のポストURL <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="url"
@@ -353,16 +354,17 @@ export default function AddBookPage() {
                     name="recommended_by_post_url"
                     value={formData.recommended_by_post_url}
                     onChange={handleInputChange}
+                    required
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
                     placeholder="https://twitter.com/username/status/xxxxx"
                   />
-                  <p className="text-sm text-gray-500 mt-1">推薦者のSNSポストやブログ記事のURLを入力してください（任意項目）</p>
+                  <p className="text-sm text-gray-500 mt-1">推薦者のSNSポストやブログ記事のURLを入力してください</p>
                 </div>
 
                 {/* Tags */}
                 <div>
                   <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
-                    タグ <span className="text-gray-500 text-sm">(任意)</span>
+                    タグ <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -370,10 +372,11 @@ export default function AddBookPage() {
                     name="tags"
                     value={formData.tags}
                     onChange={handleInputChange}
+                    required
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
                     placeholder="思考法, 整理術, 創造性"
                   />
-                  <p className="text-sm text-gray-500 mt-1">複数のタグはカンマ（,）で区切ってください（任意項目）</p>
+                  <p className="text-sm text-gray-500 mt-1">複数のタグはカンマ（,）で区切ってください</p>
                 </div>
               </div>
 
