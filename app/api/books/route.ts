@@ -67,16 +67,15 @@ export async function POST(request: NextRequest) {
       description: description || null
     }
 
-    // 新しいフィールドが存在する場合のみ追加（データベースにカラムが存在する場合のみ）
-    // 注意: これらのカラムはデータベースマイグレーション後に有効になります
-    // if (amazon_paper_url) insertData.amazon_paper_url = amazon_paper_url
-    // if (amazon_ebook_url) insertData.amazon_ebook_url = amazon_ebook_url
-    // if (amazon_audiobook_url) insertData.amazon_audiobook_url = amazon_audiobook_url
-    // if (summary_text_url) insertData.summary_text_url = summary_text_url
-    // if (summary_video_url) insertData.summary_video_url = summary_video_url
-    // if (recommended_by_post_url) insertData.recommended_by_post_url = recommended_by_post_url
-    // if (tags && Array.isArray(tags)) insertData.tags = tags
-    // if (cover_image_url) insertData.cover_image_url = cover_image_url
+    // 新しいフィールドが存在する場合のみ追加
+    if (amazon_paper_url) insertData.amazon_paper_url = amazon_paper_url
+    if (amazon_ebook_url) insertData.amazon_ebook_url = amazon_ebook_url
+    if (amazon_audiobook_url) insertData.amazon_audiobook_url = amazon_audiobook_url
+    if (summary_text_url) insertData.summary_text_url = summary_text_url
+    if (summary_video_url) insertData.summary_video_url = summary_video_url
+    if (recommended_by_post_url) insertData.recommended_by_post_url = recommended_by_post_url
+    if (tags && Array.isArray(tags)) insertData.tags = tags
+    if (cover_image_url) insertData.cover_image_url = cover_image_url
 
     console.log('Insert data:', insertData)
     

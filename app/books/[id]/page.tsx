@@ -3,22 +3,51 @@
 import Navigation from '@/components/Navigation'
 import { BookOpen, Calendar, ChevronRight, ExternalLink, User } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+interface Book {
+  id: string
+  title: string
+  author: string
+  description?: string
+  tags?: string[]
+  recommended_by_post_url?: string
+  amazon_paper_url?: string
+  amazon_ebook_url?: string
+  amazon_audiobook_url?: string
+  summary_text_url?: string
+  summary_video_url?: string
+  cover_image_url?: string
+  created_at: string
+}
 
 export default function BookDetailPage({ params }: { params: { id: string } }) {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [book, setBook] = useState<Book | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // 書籍詳細データ
-  const bookDetailData = {
-    id: params.id,
-    title: '思考の整理学',
-    author: '外山滋比古',
-    summary: '思考を整理し、創造的な発想を生み出すための方法論を解説した名著。特に「思考の外化」の重要性と、知識を体系化する技術について詳しく述べられている。',
-    amazonLink: 'https://amazon.co.jp/dp/4480020470',
-    kindleLink: 'https://amazon.co.jp/dp/B00J8XQZ8K',
-    audibleLink: 'https://amazon.co.jp/dp/B00J8XQZ8K',
-    summaryLink: 'https://example.com/summary1'
-  }
+  // 書籍詳細データをAPIから取得
+  useEffect(() => {
+    const fetchBook = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch(`/api/books/${params.id}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch book')
+        }
+        const data = await response.json()
+        setBook(data.book)
+      } catch (err) {
+        console.error('Error fetching book:', err)
+        setError('書籍データの取得に失敗しました')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchBook()
+  }, [params.id])
 
   // メモ一覧データ
   const memos = [
@@ -92,6 +121,40 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
   }
 
+  // ローディング状態
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <Navigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center">
+              <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">読み込み中...</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // エラー状態
+  if (error || !book) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <Navigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">エラーが発生しました</h2>
+              <p className="text-gray-600">{error || '書籍が見つかりません'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <Navigation />
@@ -112,63 +175,97 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
               {/* Book Details */}
               <div className="flex-1">
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                  {bookDetailData.title}
+                  {book.title}
                 </h1>
                 <p className="text-xl md:text-2xl text-gray-600 mb-6">
-                  {bookDetailData.author}
+                  {book.author}
                 </p>
                 
                 {/* Book Summary */}
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">書籍の概要</h3>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    {bookDetailData.summary}
-                  </p>
-                </div>
+                {book.description && (
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">書籍の概要</h3>
+                    <p className="text-base text-gray-700 leading-relaxed">
+                      {book.description}
+                    </p>
+                  </div>
+                )}
 
                 {/* Book Links */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">書籍のリンク</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <a
-                      href={bookDetailData.amazonLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <span className="font-medium text-gray-700">紙の本</span>
-                      <ExternalLink className="w-5 h-5 text-gray-500" />
-                    </a>
+                    {book.amazon_paper_url && (
+                      <a
+                        href={book.amazon_paper_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="font-medium text-gray-700">紙の本</span>
+                        <ExternalLink className="w-5 h-5 text-gray-500" />
+                      </a>
+                    )}
                     
-                    <a
-                      href={bookDetailData.kindleLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <span className="font-medium text-gray-700">電子書籍</span>
-                      <ExternalLink className="w-5 h-5 text-gray-500" />
-                    </a>
+                    {book.amazon_ebook_url && (
+                      <a
+                        href={book.amazon_ebook_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="font-medium text-gray-700">電子書籍</span>
+                        <ExternalLink className="w-5 h-5 text-gray-500" />
+                      </a>
+                    )}
                     
-                    <a
-                      href={bookDetailData.audibleLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <span className="font-medium text-gray-700">オーディオブック</span>
-                      <ExternalLink className="w-5 h-5 text-gray-500" />
-                    </a>
+                    {book.amazon_audiobook_url && (
+                      <a
+                        href={book.amazon_audiobook_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="font-medium text-gray-700">オーディオブック</span>
+                        <ExternalLink className="w-5 h-5 text-gray-500" />
+                      </a>
+                    )}
                     
-                    <a
-                      href={bookDetailData.summaryLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <span className="font-medium text-gray-700">要約</span>
-                      <ExternalLink className="w-5 h-5 text-gray-500" />
-                    </a>
+                    {book.summary_text_url && (
+                      <a
+                        href={book.summary_text_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="font-medium text-gray-700">要約（テキスト）</span>
+                        <ExternalLink className="w-5 h-5 text-gray-500" />
+                      </a>
+                    )}
+
+                    {book.summary_video_url && (
+                      <a
+                        href={book.summary_video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="font-medium text-gray-700">要約（動画）</span>
+                        <ExternalLink className="w-5 h-5 text-gray-500" />
+                      </a>
+                    )}
+
+                    {book.recommended_by_post_url && (
+                      <a
+                        href={book.recommended_by_post_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="font-medium text-gray-700">推薦ポスト</span>
+                        <ExternalLink className="w-5 h-5 text-gray-500" />
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
