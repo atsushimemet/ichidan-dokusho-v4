@@ -8,7 +8,13 @@ import { useEffect, useState } from 'react'
 
 export default function AddBookPage() {
   const router = useRouter()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    // 初期化時にログイン状態をチェック
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('adminLoggedIn') === 'true'
+    }
+    return false
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -27,15 +33,12 @@ export default function AddBookPage() {
     tags: ''
   })
 
-  // ページ読み込み時にlocalStorageからログイン状態を確認
+  // ログイン状態のチェック（初回のみ）
   useEffect(() => {
-    const adminLoginStatus = localStorage.getItem('adminLoggedIn')
-    if (adminLoginStatus === 'true') {
-      setIsLoggedIn(true)
-    } else {
+    if (!isLoggedIn) {
       window.location.href = '/admin/login'
     }
-  }, [])
+  }, [isLoggedIn])
 
   // ASIN抽出関数
   const extractASIN = (url: string): string | null => {

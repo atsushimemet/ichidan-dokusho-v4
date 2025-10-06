@@ -6,18 +6,20 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 export default function AdminDashboardPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    // 初期化時にログイン状態をチェック
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('adminLoggedIn') === 'true'
+    }
+    return false
+  })
 
-  // ページ読み込み時にlocalStorageからログイン状態を確認
+  // ログイン状態のチェック（初回のみ）
   useEffect(() => {
-    const adminLoginStatus = localStorage.getItem('adminLoggedIn')
-    if (adminLoginStatus === 'true') {
-      setIsLoggedIn(true)
-    } else {
-      // ログインしていない場合はログインページにリダイレクト
+    if (!isLoggedIn) {
       window.location.href = '/admin/login'
     }
-  }, [])
+  }, [isLoggedIn])
 
   const handleLogout = () => {
     // localStorageからログイン状態を削除

@@ -8,7 +8,13 @@ import { useEffect, useState } from 'react'
 
 export default function AddBookstorePage() {
   const router = useRouter()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    // 初期化時にログイン状態をチェック
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('adminLoggedIn') === 'true'
+    }
+    return false
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -25,15 +31,12 @@ export default function AddBookstorePage() {
     longitude: ''
   })
 
-  // ページ読み込み時にlocalStorageからログイン状態を確認
+  // ログイン状態のチェック（初回のみ）
   useEffect(() => {
-    const adminLoginStatus = localStorage.getItem('adminLoggedIn')
-    if (adminLoginStatus === 'true') {
-      setIsLoggedIn(true)
-    } else {
+    if (!isLoggedIn) {
       window.location.href = '/admin/login'
     }
-  }, [])
+  }, [isLoggedIn])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
