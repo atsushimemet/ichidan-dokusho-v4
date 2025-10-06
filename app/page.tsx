@@ -83,7 +83,7 @@ export default function Home() {
                   <p className="text-base md:text-lg text-blue-100 mb-4 md:mb-6 whitespace-nowrap">
                     あなたの学びをサポートします
                   </p>
-                  <Link href="/login" className="inline-block bg-white text-blue-600 hover:bg-gray-50 font-semibold py-2 px-4 md:px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap text-sm md:text-base">
+                  <Link href="/onboarding" className="inline-block bg-white text-blue-600 hover:bg-gray-50 font-semibold py-2 px-4 md:px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap text-sm md:text-base">
                     はじめる
                   </Link>
                 </div>
