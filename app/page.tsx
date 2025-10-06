@@ -8,6 +8,32 @@ import { ArrowRight, BarChart3, BookOpen, Brain, ChevronRight, Clock, FileText, 
 import Link from 'next/link'
 import { useState } from 'react'
 
+// ASIN抽出関数
+function extractASIN(url: string): string | null {
+  if (!url) return null
+  
+  // Amazon URLからASINを抽出
+  const patterns = [
+    /\/dp\/([A-Z0-9]{10})/,  // /dp/ASIN
+    /\/product\/([A-Z0-9]{10})/,  // /product/ASIN
+    /\/gp\/product\/([A-Z0-9]{10})/,  // /gp/product/ASIN
+  ]
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match) {
+      return match[1]
+    }
+  }
+  
+  return null
+}
+
+// Amazon画像URL生成関数
+function generateAmazonImageUrl(asin: string): string {
+  return `https://images-na.ssl-images-amazon.com/images/P/${asin}.09.MZZZZZZZ`
+}
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'books' | 'memo' | 'quiz'>('books')
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -195,9 +221,30 @@ export default function Home() {
                           <div className="flex justify-center">
                             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow max-w-sm w-full">
                               <div className="flex flex-col items-center text-center">
-                                <div className="w-20 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center mb-6">
-                                  <BookOpen className="w-10 h-10 text-primary-600" />
-                                </div>
+                                {/* 書籍画像またはデフォルトアイコン */}
+                                {book.amazon_paper_url && extractASIN(book.amazon_paper_url) ? (
+                                  <div className="w-20 h-24 mb-6">
+                                    <img
+                                      src={generateAmazonImageUrl(extractASIN(book.amazon_paper_url)!)}
+                                      alt={book.title}
+                                      className="w-full h-full object-cover rounded-lg shadow-md"
+                                      onError={(e) => {
+                                        // 画像読み込みエラー時はデフォルトアイコンを表示
+                                        const target = e.target as HTMLImageElement
+                                        target.style.display = 'none'
+                                        const fallback = target.nextElementSibling as HTMLElement
+                                        if (fallback) fallback.style.display = 'flex'
+                                      }}
+                                    />
+                                    <div className="w-20 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center hidden">
+                                      <BookOpen className="w-10 h-10 text-primary-600" />
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="w-20 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center mb-6">
+                                    <BookOpen className="w-10 h-10 text-primary-600" />
+                                  </div>
+                                )}
                                 <Link href={`/books/${book.id}`} className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2 hover:text-primary-600 transition-colors">
                                   {book.title}
                                 </Link>
