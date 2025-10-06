@@ -81,7 +81,8 @@ export async function POST(request: NextRequest) {
     if (summary_video_url) insertData.summary_video_url = summary_video_url
     if (recommended_by_post_url) insertData.recommended_by_post_url = recommended_by_post_url
     if (tags && Array.isArray(tags)) insertData.tags = tags
-    if (cover_image_url) insertData.cover_image_url = cover_image_url
+    // cover_image_urlはデータベースにカラムが存在しないため一時的に除外
+    // if (cover_image_url) insertData.cover_image_url = cover_image_url
 
     console.log('Insert data:', insertData)
     
