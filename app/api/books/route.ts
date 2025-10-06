@@ -42,16 +42,21 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('=== POST /api/books - Start ===')
+    console.log('Request headers:', Object.fromEntries(request.headers.entries()))
+    
     const body = await request.json()
-    const { 
-      title, 
-      author, 
-      description, 
-      amazon_paper_url, 
-      amazon_ebook_url, 
-      amazon_audiobook_url, 
-      summary_text_url, 
-      summary_video_url, 
+    console.log('Request body:', body)
+    
+    const {
+      title,
+      author,
+      description,
+      amazon_paper_url,
+      amazon_ebook_url,
+      amazon_audiobook_url,
+      summary_text_url,
+      summary_video_url,
       recommended_by_post_url,
       tags,
       cover_image_url 
@@ -89,19 +94,47 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('Error creating book:', error)
       console.error('Error details:', JSON.stringify(error, null, 2))
-      return NextResponse.json({ 
-        error: 'Failed to create book', 
+      return NextResponse.json({
+        error: 'Failed to create book',
         details: error.message,
-        code: error.code 
+        code: error.code
       }, { status: 500 })
     }
 
-    return NextResponse.json({ book: data }, { status: 201 })
+    console.log('Book created successfully:', data)
+    return NextResponse.json({ book: data }, { 
+      status: 201,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      }
+    })
   } catch (error) {
+    console.error('=== POST /api/books - Error ===')
     console.error('Unexpected error:', error)
-    return NextResponse.json({ 
-      error: 'Internal server error', 
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+    return NextResponse.json({
+      error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
+    }, { 
+      status: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      }
+    })
   }
+}
+
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    }
+  })
 }

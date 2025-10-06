@@ -73,6 +73,20 @@ export default function AddBookPage() {
       // タグを配列に変換
       const tagsArray = formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : []
 
+      console.log('Sending request to /api/books with data:', {
+        title: formData.title,
+        author: formData.author,
+        description: formData.description || null,
+        amazon_paper_url: formData.amazon_paper_url || null,
+        amazon_ebook_url: formData.amazon_ebook_url || null,
+        amazon_audiobook_url: formData.amazon_audiobook_url || null,
+        summary_text_url: formData.summary_text_url || null,
+        summary_video_url: formData.summary_video_url || null,
+        recommended_by_post_url: formData.recommended_by_post_url || null,
+        tags: tagsArray,
+        cover_image_url: coverImageUrl
+      })
+
       const response = await fetch('/api/books', {
         method: 'POST',
         headers: {
@@ -93,7 +107,11 @@ export default function AddBookPage() {
         }),
       })
 
+      console.log('Response status:', response.status)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+
       const data = await response.json()
+      console.log('Response data:', data)
 
       if (response.ok) {
         setSuccess('書籍が正常に登録されました！')
@@ -115,7 +133,8 @@ export default function AddBookPage() {
           router.push('/admin/dashboard')
         }, 3000)
       } else {
-        setError(data.error || '書籍の登録に失敗しました')
+        console.error('API Error:', data)
+        setError(data.error || data.details || '書籍の登録に失敗しました')
       }
     } catch (err) {
       setError('ネットワークエラーが発生しました')
