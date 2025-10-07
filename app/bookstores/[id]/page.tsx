@@ -1,24 +1,16 @@
 'use client'
 
 import Navigation from '@/components/Navigation'
+import { useStore } from '@/hooks/useStore'
 import { BookOpen, Calendar, ChevronRight, ExternalLink, MapPin, User } from 'lucide-react'
+import Link from 'next/link'
 import { useState } from 'react'
 
 export default function BookstoreDetailPage({ params }: { params: { id: string } }) {
   const [currentSlide, setCurrentSlide] = useState(0)
-
-  // 本屋詳細データ
-  const bookstoreDetailData = {
-    id: params.id,
-    name: '代官山 蔦屋書店',
-    location: '東京都渋谷区猿楽町17-5',
-    description: '代官山の街並みに溶け込む、世界で最も美しい書店の一つとして知られる蔦屋書店。本だけでなく、音楽、映画、雑貨など、生活に寄り添う商品を幅広く取り揃えています。',
-    tags: ['大型書店', '文化施設', 'カフェ併設', 'イベント開催', '雑貨販売'],
-    hpLink: 'https://real.tsite.jp/daikanyama/',
-    xLink: 'https://twitter.com/tsutaya_daikanyama',
-    instagramLink: 'https://www.instagram.com/tsutaya_daikanyama/',
-    postLink: 'https://example.com/bookstore-post'
-  }
+  
+  // 書店データを取得
+  const { store, loading, error } = useStore(params.id)
 
   // イベント情報データ
   const events = [
@@ -58,6 +50,69 @@ export default function BookstoreDetailPage({ params }: { params: { id: string }
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
   }
 
+  // ローディング状態
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <Navigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center">
+              <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">書店情報を読み込み中...</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // エラー状態
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <Navigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">エラーが発生しました</h2>
+              <p className="text-gray-600 mb-6">{error}</p>
+              <Link
+                href="/bookstores"
+                className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+              >
+                書店一覧に戻る
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // 書店が見つからない場合
+  if (!store) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <Navigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">書店が見つかりません</h2>
+              <p className="text-gray-600 mb-6">指定された書店は存在しないか、削除された可能性があります。</p>
+              <Link
+                href="/bookstores"
+                className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+              >
+                書店一覧に戻る
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <Navigation />
@@ -78,25 +133,25 @@ export default function BookstoreDetailPage({ params }: { params: { id: string }
               {/* Bookstore Details */}
               <div className="flex-1">
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                  {bookstoreDetailData.name}
+                  {store.name}
                 </h1>
                 
                 {/* Location */}
                 <div className="flex items-center text-gray-600 mb-6">
                   <MapPin className="w-5 h-5 mr-2" />
-                  <span className="text-lg">{bookstoreDetailData.location}</span>
+                  <span className="text-lg">{store.area?.name} ({store.area?.prefecture})</span>
                 </div>
 
-                {/* Tags */}
+                {/* Category Tags */}
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">本屋タグ</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">カテゴリタグ</h3>
                   <div className="flex flex-wrap gap-2">
-                    {bookstoreDetailData.tags.map((tag, index) => (
+                    {store.category_tags?.map((ct, index) => (
                       <span
                         key={index}
                         className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
                       >
-                        {tag}
+                        {ct.category_tag.display_name}
                       </span>
                     ))}
                   </div>
@@ -104,9 +159,9 @@ export default function BookstoreDetailPage({ params }: { params: { id: string }
                 
                 {/* About */}
                 <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">{bookstoreDetailData.name}について</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">{store.name}について</h3>
                   <p className="text-base text-gray-700 leading-relaxed">
-                    {bookstoreDetailData.description}
+                    {store.description || '説明はありません'}
                   </p>
                 </div>
 
@@ -114,45 +169,65 @@ export default function BookstoreDetailPage({ params }: { params: { id: string }
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">リンク</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <a
-                      href={bookstoreDetailData.hpLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <span className="font-medium text-gray-700">HPリンク</span>
-                      <ExternalLink className="w-5 h-5 text-gray-500" />
-                    </a>
+                    {store.website_link && (
+                      <a
+                        href={store.website_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="font-medium text-gray-700">ウェブサイト</span>
+                        <ExternalLink className="w-5 h-5 text-gray-500" />
+                      </a>
+                    )}
                     
-                    <a
-                      href={bookstoreDetailData.xLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <span className="font-medium text-gray-700">Xリンク</span>
-                      <ExternalLink className="w-5 h-5 text-gray-500" />
-                    </a>
+                    {store.x_link && (
+                      <a
+                        href={store.x_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="font-medium text-gray-700">X (旧Twitter)</span>
+                        <ExternalLink className="w-5 h-5 text-gray-500" />
+                      </a>
+                    )}
                     
-                    <a
-                      href={bookstoreDetailData.instagramLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <span className="font-medium text-gray-700">Instagramリンク</span>
-                      <ExternalLink className="w-5 h-5 text-gray-500" />
-                    </a>
+                    {store.instagram_link && (
+                      <a
+                        href={store.instagram_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="font-medium text-gray-700">Instagram</span>
+                        <ExternalLink className="w-5 h-5 text-gray-500" />
+                      </a>
+                    )}
                     
-                    <a
-                      href={bookstoreDetailData.postLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <span className="font-medium text-gray-700">紹介ポストリンク</span>
-                      <ExternalLink className="w-5 h-5 text-gray-500" />
-                    </a>
+                    {store.google_map_link && (
+                      <a
+                        href={store.google_map_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="font-medium text-gray-700">Google Map</span>
+                        <ExternalLink className="w-5 h-5 text-gray-500" />
+                      </a>
+                    )}
+                    
+                    {store.x_post_url && (
+                      <a
+                        href={store.x_post_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="font-medium text-gray-700">X投稿リンク</span>
+                        <ExternalLink className="w-5 h-5 text-gray-500" />
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
