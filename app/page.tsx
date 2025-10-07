@@ -345,10 +345,22 @@ export default function Home() {
                                   <Link href={`/bookstores/${store.id}`} className="text-2xl font-bold text-gray-900 mb-2 hover:text-primary-600 transition-colors">
                                     {store.name}
                                   </Link>
-                                  <div className="flex items-center text-gray-600">
-                                    <MapPin className="w-4 h-4 mr-2" />
-                                    <span className="text-base">{store.area?.name} ({store.area?.prefecture})</span>
-                                  </div>
+                                  {store.google_map_link ? (
+                                    <a 
+                                      href={store.google_map_link} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="flex items-center text-gray-600 hover:text-primary-600 transition-colors cursor-pointer"
+                                    >
+                                      <MapPin className="w-4 h-4 mr-2" />
+                                      <span className="text-base">{store.area?.name} ({store.area?.prefecture})</span>
+                                    </a>
+                                  ) : (
+                                    <div className="flex items-center text-gray-600">
+                                      <MapPin className="w-4 h-4 mr-2" />
+                                      <span className="text-base">{store.area?.name} ({store.area?.prefecture})</span>
+                                    </div>
+                                  )}
                                 </div>
 
                                 {/* 説明 */}
