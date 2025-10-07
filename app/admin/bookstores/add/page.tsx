@@ -1,6 +1,8 @@
 'use client'
 
 import Navigation from '@/components/Navigation'
+import { useAreas } from '@/hooks/useAreas'
+import { useCategoryTags } from '@/hooks/useCategoryTags'
 import { ArrowLeft, MapPin, Save, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -14,16 +16,21 @@ export default function AddBookstorePage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
+  // データ取得
+  const { areas, loading: areasLoading } = useAreas()
+  const { categoryTags, loading: categoryTagsLoading } = useCategoryTags()
+
   // フォームデータ
   const [formData, setFormData] = useState({
     name: '',
-    address: '',
+    area_id: '',
+    x_link: '',
+    instagram_link: '',
+    website_link: '',
+    x_post_url: '',
+    google_map_link: '',
     description: '',
-    website: '',
-    phone: '',
-    tags: '',
-    latitude: '',
-    longitude: ''
+    category_tag_ids: [] as number[]
   })
 
   // クライアントサイドでの初期化
@@ -37,11 +44,20 @@ export default function AddBookstorePage() {
     }
   }, [])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }))
+  }
+
+  const handleCategoryTagChange = (tagId: number, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      category_tag_ids: checked 
+        ? [...prev.category_tag_ids, tagId]
+        : prev.category_tag_ids.filter(id => id !== tagId)
     }))
   }
 
@@ -52,9 +68,6 @@ export default function AddBookstorePage() {
     setSuccess('')
 
     try {
-      // タグを配列に変換
-      const tagsArray = formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : []
-
       const response = await fetch('/api/bookstores', {
         method: 'POST',
         headers: {
@@ -62,13 +75,14 @@ export default function AddBookstorePage() {
         },
         body: JSON.stringify({
           name: formData.name,
-          address: formData.address,
+          area_id: parseInt(formData.area_id),
+          x_link: formData.x_link || null,
+          instagram_link: formData.instagram_link || null,
+          website_link: formData.website_link || null,
+          x_post_url: formData.x_post_url || null,
+          google_map_link: formData.google_map_link || null,
           description: formData.description || null,
-          website: formData.website || null,
-          phone: formData.phone || null,
-          tags: tagsArray,
-          latitude: formData.latitude ? parseFloat(formData.latitude) : null,
-          longitude: formData.longitude ? parseFloat(formData.longitude) : null
+          category_tag_ids: formData.category_tag_ids
         }),
       })
 
@@ -79,13 +93,14 @@ export default function AddBookstorePage() {
         // フォームをリセット
         setFormData({
           name: '',
-          address: '',
+          area_id: '',
+          x_link: '',
+          instagram_link: '',
+          website_link: '',
+          x_post_url: '',
+          google_map_link: '',
           description: '',
-          website: '',
-          phone: '',
-          tags: '',
-          latitude: '',
-          longitude: ''
+          category_tag_ids: []
         })
         // 3秒後にダッシュボードにリダイレクト
         setTimeout(() => {
@@ -191,21 +206,30 @@ export default function AddBookstorePage() {
                 />
               </div>
 
-              {/* Address */}
+              {/* Area */}
               <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                  住所 <span className="text-red-500">*</span>
+                <label htmlFor="area_id" className="block text-sm font-medium text-gray-700 mb-2">
+                  エリア <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  value={formData.address}
+                <select
+                  id="area_id"
+                  name="area_id"
+                  value={formData.area_id}
                   onChange={handleInputChange}
                   required
+                  disabled={areasLoading}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
-                  placeholder="住所を入力"
-                />
+                >
+                  <option value="">エリアを選択してください</option>
+                  {areas.map((area) => (
+                    <option key={area.id} value={area.id}>
+                      {area.name} ({area.prefecture})
+                    </option>
+                  ))}
+                </select>
+                {areasLoading && (
+                  <p className="text-sm text-gray-500 mt-1">エリア情報を読み込み中...</p>
+                )}
               </div>
 
               {/* Description */}
@@ -225,90 +249,117 @@ export default function AddBookstorePage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Website */}
+                {/* Website Link */}
                 <div>
-                  <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="website_link" className="block text-sm font-medium text-gray-700 mb-2">
                     ウェブサイト
                   </label>
                   <input
                     type="url"
-                    id="website"
-                    name="website"
-                    value={formData.website}
+                    id="website_link"
+                    name="website_link"
+                    value={formData.website_link}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
                     placeholder="https://example.com"
                   />
                 </div>
 
-                {/* Phone */}
+                {/* Google Map Link */}
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                    電話番号
+                  <label htmlFor="google_map_link" className="block text-sm font-medium text-gray-700 mb-2">
+                    Google Map
                   </label>
                   <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
+                    type="url"
+                    id="google_map_link"
+                    name="google_map_link"
+                    value={formData.google_map_link}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
-                    placeholder="03-1234-5678"
+                    placeholder="https://maps.google.com/..."
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Latitude */}
+                {/* X Link */}
                 <div>
-                  <label htmlFor="latitude" className="block text-sm font-medium text-gray-700 mb-2">
-                    緯度
+                  <label htmlFor="x_link" className="block text-sm font-medium text-gray-700 mb-2">
+                    X (旧Twitter)
                   </label>
                   <input
-                    type="number"
-                    step="any"
-                    id="latitude"
-                    name="latitude"
-                    value={formData.latitude}
+                    type="url"
+                    id="x_link"
+                    name="x_link"
+                    value={formData.x_link}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
-                    placeholder="35.6762"
+                    placeholder="https://x.com/..."
                   />
                 </div>
 
-                {/* Longitude */}
+                {/* Instagram Link */}
                 <div>
-                  <label htmlFor="longitude" className="block text-sm font-medium text-gray-700 mb-2">
-                    経度
+                  <label htmlFor="instagram_link" className="block text-sm font-medium text-gray-700 mb-2">
+                    Instagram
                   </label>
                   <input
-                    type="number"
-                    step="any"
-                    id="longitude"
-                    name="longitude"
-                    value={formData.longitude}
+                    type="url"
+                    id="instagram_link"
+                    name="instagram_link"
+                    value={formData.instagram_link}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
-                    placeholder="139.6503"
+                    placeholder="https://instagram.com/..."
                   />
                 </div>
               </div>
 
-              {/* Tags */}
+              {/* X Post URL */}
               <div>
-                <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
-                  タグ
+                <label htmlFor="x_post_url" className="block text-sm font-medium text-gray-700 mb-2">
+                  X投稿URL
                 </label>
                 <input
-                  type="text"
-                  id="tags"
-                  name="tags"
-                  value={formData.tags}
+                  type="url"
+                  id="x_post_url"
+                  name="x_post_url"
+                  value={formData.x_post_url}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-gray-900 cursor-text"
-                  placeholder="タグをカンマ区切りで入力（例：古書, 専門書, カフェ）"
+                  placeholder="https://x.com/username/status/..."
                 />
-                <p className="text-sm text-gray-500 mt-1">複数のタグはカンマ（,）で区切ってください</p>
+              </div>
+
+              {/* Category Tags */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  カテゴリタグ
+                </label>
+                <div className="space-y-2">
+                  {categoryTagsLoading ? (
+                    <p className="text-sm text-gray-500">カテゴリタグを読み込み中...</p>
+                  ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {categoryTags.map((tag) => (
+                        <label
+                          key={tag.id}
+                          className="flex items-center space-x-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formData.category_tag_ids.includes(tag.id)}
+                            onChange={(e) => handleCategoryTagChange(tag.id, e.target.checked)}
+                            className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                          />
+                          <span className="text-sm text-gray-700">{tag.display_name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm text-gray-500 mt-1">該当するカテゴリタグを選択してください</p>
               </div>
 
               {/* Error/Success Messages */}

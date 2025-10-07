@@ -2,8 +2,8 @@
 
 import Navigation from '@/components/Navigation'
 import { useBooks } from '@/hooks/useBooks'
-import { useBookstores } from '@/hooks/useBookstores'
 import { useMemos } from '@/hooks/useMemos'
+import { useStores } from '@/hooks/useStores'
 import { ArrowRight, BarChart3, BookOpen, Brain, ChevronRight, Clock, FileText, HelpCircle, MapPin, RefreshCw, Target, TrendingUp, Twitter } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -41,7 +41,7 @@ export default function Home() {
 
   // データ取得
   const { books: recommendedBooks, loading: booksLoading } = useBooks(10)
-  const { bookstores, loading: bookstoresLoading } = useBookstores(10)
+  const { stores, loading: storesLoading } = useStores(10)
   const { memos, loading: memosLoading } = useMemos(2)
 
   const booksPerSlide = 1
@@ -56,7 +56,7 @@ export default function Home() {
   }
 
 
-  const totalBookstoreSlides = bookstores.length
+  const totalBookstoreSlides = stores.length
 
   const nextBookstoreSlide = () => {
     setCurrentBookstoreSlide((prev) => (prev + 1) % totalBookstoreSlides)
@@ -323,7 +323,7 @@ export default function Home() {
             </h2>
             
             <div className="relative">
-              {bookstoresLoading ? (
+              {storesLoading ? (
                 <div className="flex justify-center items-center h-64">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
                 </div>
@@ -335,37 +335,37 @@ export default function Home() {
                       className="flex transition-transform duration-300 ease-in-out"
                       style={{ transform: `translateX(-${currentBookstoreSlide * 100}%)` }}
                     >
-                      {bookstores.map((bookstore) => (
-                        <div key={bookstore.id} className="w-full flex-shrink-0">
+                      {stores.map((store) => (
+                        <div key={store.id} className="w-full flex-shrink-0">
                           <div className="flex justify-center">
                             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow max-w-lg w-full border border-gray-100">
                               <div className="flex flex-col">
-                                {/* 本屋名と場所 */}
+                                {/* 書店名とエリア */}
                                 <div className="mb-6">
-                                  <Link href={`/bookstores/${bookstore.id}`} className="text-2xl font-bold text-gray-900 mb-2 hover:text-primary-600 transition-colors">
-                                    {bookstore.name}
+                                  <Link href={`/bookstores/${store.id}`} className="text-2xl font-bold text-gray-900 mb-2 hover:text-primary-600 transition-colors">
+                                    {store.name}
                                   </Link>
                                   <div className="flex items-center text-gray-600">
                                     <MapPin className="w-4 h-4 mr-2" />
-                                    <span className="text-base">{bookstore.address}</span>
+                                    <span className="text-base">{store.area?.name} ({store.area?.prefecture})</span>
                                   </div>
                                 </div>
 
-                                {/* 一言紹介 */}
+                                {/* 説明 */}
                                 <div className="mb-6">
                                   <p className="text-gray-700 leading-relaxed">
-                                    {bookstore.description}
+                                    {store.description || '説明はありません'}
                                   </p>
                                 </div>
 
-                                {/* タグ */}
+                                {/* カテゴリタグ */}
                                 <div className="flex flex-wrap gap-2">
-                                  {bookstore.tags?.map((tag, index) => (
+                                  {store.category_tags?.map((ct, index) => (
                                     <span
                                       key={index}
                                       className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
                                     >
-                                      {tag}
+                                      {ct.category_tag.display_name}
                                     </span>
                                   ))}
                                 </div>

@@ -6,6 +6,18 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+// 共通のメニュー設定
+const navigationItems = [
+  { label: 'ホーム', href: '/' },
+  { label: 'みんなのメモ', href: '/memos' },
+  { label: '書籍一覧', href: '/books' },
+  { label: '店舗一覧', href: '/bookstores' },
+]
+
+const adminItems = [
+  { label: '管理者ログイン', href: '/admin/login' },
+]
+
 export default function Navigation() {
   const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -33,22 +45,16 @@ export default function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#" className="text-gray-600 hover:text-primary-600 font-medium transition-colors relative group">
-              ホーム
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-600 transition-all group-hover:w-full"></span>
-            </a>
-            <a href="#" className="text-gray-600 hover:text-primary-600 font-medium transition-colors relative group">
-              書籍一覧
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-600 transition-all group-hover:w-full"></span>
-            </a>
-            <a href="#" className="text-gray-600 hover:text-primary-600 font-medium transition-colors relative group">
-              学び履歴
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-600 transition-all group-hover:w-full"></span>
-            </a>
-            <a href="#" className="text-gray-600 hover:text-primary-600 font-medium transition-colors relative group">
-              設定
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-600 transition-all group-hover:w-full"></span>
-            </a>
+            {navigationItems.map((item) => (
+              <Link 
+                key={item.href}
+                href={item.href} 
+                className="text-gray-600 hover:text-primary-600 font-medium transition-colors relative group"
+              >
+                {item.label}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-600 transition-all group-hover:w-full"></span>
+              </Link>
+            ))}
             
             {isLoading ? (
               <div className="w-8 h-8 animate-spin rounded-full border-2 border-gray-300 border-t-primary-600"></div>
@@ -93,23 +99,26 @@ export default function Navigation() {
         {isMenuOpen && (
           <div className="md:hidden py-6 border-t border-gray-100 bg-white/95 backdrop-blur-sm">
             <div className="flex flex-col space-y-4">
-              <Link href="/" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
-                ホーム
-              </Link>
-              <Link href="/memos" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
-                みんなのメモ
-              </Link>
-              <Link href="/books" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
-                書籍一覧
-              </Link>
-              <Link href="/bookstores" className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors">
-                店舗一覧
-              </Link>
+              {navigationItems.map((item) => (
+                <Link 
+                  key={item.href}
+                  href={item.href} 
+                  className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ))}
               
               <div className="pt-2 border-t border-gray-100">
-                <Link href="/admin/login" className="text-gray-500 hover:text-gray-700 font-medium py-2 transition-colors text-sm">
-                  管理者ログイン
-                </Link>
+                {adminItems.map((item) => (
+                  <Link 
+                    key={item.href}
+                    href={item.href} 
+                    className="text-gray-500 hover:text-gray-700 font-medium py-2 transition-colors text-sm"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
               </div>
               
               <div className="pt-4 border-t border-gray-100">
