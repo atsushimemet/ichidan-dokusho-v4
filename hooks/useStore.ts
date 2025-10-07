@@ -15,7 +15,13 @@ export function useStore(id: string) {
     const fetchStore = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/bookstores/${id}`)
+        const response = await fetch(`/api/bookstores/${id}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        })
         if (!response.ok) {
           if (response.status === 404) {
             throw new Error('Store not found')

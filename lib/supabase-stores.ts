@@ -11,8 +11,8 @@ export const createServerSupabaseStoresClient = () => {
   return createClient(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
+      persistSession: false,
+      detectSessionInUrl: false
     }
   })
 }
-

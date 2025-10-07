@@ -28,7 +28,15 @@ export async function GET(
       return NextResponse.json({ error: 'Store not found' }, { status: 404 })
     }
 
-    return NextResponse.json({ store: data })
+    const response = NextResponse.json({ store: data })
+    
+    // キャッシュを無効化
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    response.headers.set('Surrogate-Control', 'no-store')
+    
+    return response
   } catch (error) {
     console.error('Unexpected error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

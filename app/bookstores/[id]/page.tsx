@@ -6,6 +6,10 @@ import { BookOpen, Calendar, ChevronRight, ExternalLink, MapPin, User } from 'lu
 import Link from 'next/link'
 import { useState } from 'react'
 
+// キャッシュを無効化
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default function BookstoreDetailPage({ params }: { params: { id: string } }) {
   const [currentSlide, setCurrentSlide] = useState(0)
   
