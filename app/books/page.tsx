@@ -1,8 +1,8 @@
 'use client'
 
-import { BookOpen, ChevronLeft, ChevronRight, Twitter } from 'lucide-react'
+import { BookOpen, Twitter, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Navigation from '@/components/Navigation'
 
 // ASIN抽出関数
@@ -47,12 +47,15 @@ interface Book {
   created_at: string
 }
 
+const ITEMS_PER_PAGE = 50
+
 export default function BooksPage() {
-  const [currentSlide, setCurrentSlide] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1)
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [books, setBooks] = useState<Book[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showAllTags, setShowAllTags] = useState(false)
 
   // 書籍データをAPIから取得
   useEffect(() => {
@@ -76,27 +79,41 @@ export default function BooksPage() {
     fetchBooks()
   }, [])
 
-  // 全タグを取得
-  const allTags = Array.from(new Set(books.flatMap(book => book.tags || [])))
+  // 全タグを取得（ユニークにして並び替え）
+  const allTags = useMemo(() => {
+    return Array.from(new Set(books.flatMap(book => book.tags || []))).sort()
+  }, [books])
+
+  // ランダムに10個のタグを選択（初期表示用）
+  const randomTags = useMemo(() => {
+    const shuffled = [...allTags].sort(() => Math.random() - 0.5)
+    return shuffled.slice(0, 10)
+  }, [allTags])
+
+  // 表示するタグリスト
+  const displayedTags = showAllTags ? allTags : randomTags
 
   // フィルタリングされた書籍
-  const filteredBooks = selectedTag 
-    ? books.filter(book => book.tags?.includes(selectedTag))
-    : books
+  const filteredBooks = useMemo(() => {
+    return selectedTag 
+      ? books.filter(book => book.tags?.includes(selectedTag))
+      : books
+  }, [books, selectedTag])
 
-  const totalSlides = filteredBooks.length
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % totalSlides)
-  }
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
-  }
+  // ページネーション計算
+  const totalPages = Math.ceil(filteredBooks.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const endIndex = startIndex + ITEMS_PER_PAGE
+  const currentBooks = filteredBooks.slice(startIndex, endIndex)
 
   const handleTagSelect = (tag: string | null) => {
     setSelectedTag(tag)
-    setCurrentSlide(0) // フィルタ変更時に最初のスライドに戻る
+    setCurrentPage(1) // フィルタ変更時に最初のページに戻る
+  }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   // ローディング状態
@@ -153,7 +170,7 @@ export default function BooksPage() {
           {/* Tag Filter */}
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-8">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">タグでフィルタ</h2>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-4">
               <button
                 onClick={() => handleTagSelect(null)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
@@ -164,7 +181,7 @@ export default function BooksPage() {
               >
                 すべて
               </button>
-              {allTags.map((tag) => (
+              {displayedTags.map((tag) => (
                 <button
                   key={tag}
                   onClick={() => handleTagSelect(tag)}
@@ -178,6 +195,27 @@ export default function BooksPage() {
                 </button>
               ))}
             </div>
+
+            {/* もっとタグを見るアコーディオン */}
+            {allTags.length > 10 && (
+              <button
+                onClick={() => setShowAllTags(!showAllTags)}
+                className="flex items-center space-x-2 text-primary-600 hover:text-primary-700 transition-colors text-sm font-medium"
+              >
+                {showAllTags ? (
+                  <>
+                    <ChevronUp className="w-4 h-4" />
+                    <span>タグを閉じる</span>
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-4 h-4" />
+                    <span>もっとタグを見る ({allTags.length - 10}個)</span>
+                  </>
+                )}
+              </button>
+            )}
+
             {selectedTag && (
               <div className="mt-4 text-sm text-gray-600">
                 「{selectedTag}」でフィルタ中 ({filteredBooks.length}件)
@@ -185,114 +223,166 @@ export default function BooksPage() {
             )}
           </div>
 
-          {/* Books Slider */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
-            <div className="relative">
-              <div className="overflow-hidden">
-                <div 
-                  className="flex transition-transform duration-300 ease-in-out"
-                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                >
-                  {filteredBooks.map((book) => (
-                    <div key={book.id} className="w-full flex-shrink-0">
-                      <div className="flex justify-center">
-                        <div className="bg-gray-50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow max-w-sm w-full">
-                          <div className="flex flex-col items-center text-center">
-                            {/* 書籍画像またはデフォルトアイコン */}
-                            {book.amazon_paper_url && extractASIN(book.amazon_paper_url) ? (
-                              <div className="w-20 h-24 mb-6">
-                                <img
-                                  src={generateAmazonImageUrl(extractASIN(book.amazon_paper_url)!)}
-                                  alt={book.title}
-                                  className="w-full h-full object-cover rounded-lg shadow-md"
-                                  onError={(e) => {
-                                    // 画像読み込みエラー時はデフォルトアイコンを表示
-                                    const target = e.target as HTMLImageElement
-                                    target.style.display = 'none'
-                                    const fallback = target.nextElementSibling as HTMLElement
-                                    if (fallback) fallback.style.display = 'flex'
-                                  }}
-                                />
-                                <div className="w-20 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center hidden">
-                                  <BookOpen className="w-10 h-10 text-primary-600" />
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="w-20 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center mb-6">
-                                <BookOpen className="w-10 h-10 text-primary-600" />
-                              </div>
-                            )}
-                            <Link href={`/books/${book.id}`} className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2 hover:text-primary-600 transition-colors">
-                              {book.title}
-                            </Link>
-                            <p className="text-base text-gray-600 mb-2">
-                              著者: {book.author}
-                            </p>
-                            {book.description && (
-                              <p className="text-sm text-gray-500 mb-4 line-clamp-2">
-                                {book.description}
-                              </p>
-                            )}
-                            
-                            {/* Tags */}
-                            {book.tags && book.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-2 justify-center mb-6">
-                                {book.tags.map((tag, tagIndex) => (
-                                  <span
-                                    key={tagIndex}
-                                    className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
+          {/* Books Grid */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <p className="text-sm text-gray-600">
+                {filteredBooks.length}件中 {startIndex + 1}〜{Math.min(endIndex, filteredBooks.length)}件を表示
+              </p>
+              <p className="text-sm text-gray-600">
+                ページ {currentPage} / {totalPages}
+              </p>
+            </div>
 
-                            {book.recommended_by_post_url && (
-                              <a
-                                href={book.recommended_by_post_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center space-x-2 text-primary-600 hover:text-primary-700 transition-colors"
-                              >
-                                <Twitter className="w-5 h-5" />
-                                <span className="font-medium">推薦ポストを見る</span>
-                              </a>
-                            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {currentBooks.map((book) => (
+                <div key={book.id} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                  <div className="flex flex-col h-full">
+                    {/* 書籍画像 */}
+                    <div className="flex justify-center mb-4">
+                      {book.amazon_paper_url && extractASIN(book.amazon_paper_url) ? (
+                        <div className="w-24 h-32 relative">
+                          <img
+                            src={generateAmazonImageUrl(extractASIN(book.amazon_paper_url)!)}
+                            alt={book.title}
+                            className="w-full h-full object-cover rounded-lg shadow-md"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement
+                              target.style.display = 'none'
+                              const fallback = target.nextElementSibling as HTMLElement
+                              if (fallback) fallback.style.display = 'flex'
+                            }}
+                          />
+                          <div className="w-24 h-32 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center hidden absolute top-0">
+                            <BookOpen className="w-12 h-12 text-primary-600" />
                           </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="w-24 h-32 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center">
+                          <BookOpen className="w-12 h-12 text-primary-600" />
+                        </div>
+                      )}
                     </div>
-                  ))}
+
+                    {/* 書籍情報 */}
+                    <div className="flex-1 flex flex-col">
+                      <Link 
+                        href={`/books/${book.id}`} 
+                        className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-primary-600 transition-colors"
+                      >
+                        {book.title}
+                      </Link>
+                      <p className="text-sm text-gray-600 mb-3">
+                        {book.author}
+                      </p>
+                      {book.description && (
+                        <p className="text-sm text-gray-500 mb-3 line-clamp-3">
+                          {book.description}
+                        </p>
+                      )}
+                      
+                      {/* Tags */}
+                      {book.tags && book.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {book.tags.slice(0, 3).map((tag, tagIndex) => (
+                            <span
+                              key={tagIndex}
+                              className="px-2 py-1 bg-primary-100 text-primary-700 text-xs font-medium rounded-full"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                          {book.tags.length > 3 && (
+                            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                              +{book.tags.length - 3}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* 推薦ポストリンク */}
+                      {book.recommended_by_post_url && (
+                        <a
+                          href={book.recommended_by_post_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 transition-colors text-sm mt-auto"
+                        >
+                          <Twitter className="w-4 h-4" />
+                          <span>推薦ポスト</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              <button
-                onClick={prevSlide}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
-              >
-                <ChevronRight className="w-5 h-5 text-gray-600 rotate-180" />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
-              >
-                <ChevronRight className="w-5 h-5 text-gray-600" />
-              </button>
-            </div>
-            
-            <div className="flex justify-center mt-8 space-x-2">
-              {Array.from({ length: totalSlides }).map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-colors ${
-                    index === currentSlide ? 'bg-primary-600' : 'bg-gray-300'
-                  }`}
-                />
               ))}
             </div>
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center space-x-2 mt-8">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`p-2 rounded-lg transition-colors ${
+                  currentPage === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 hover:bg-primary-50 hover:text-primary-600 shadow-md'
+                }`}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {/* ページ番号 */}
+              <div className="flex space-x-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((page) => {
+                    // 最初と最後、現在のページ前後2つを表示
+                    return (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 2 && page <= currentPage + 2)
+                    )
+                  })
+                  .map((page, index, array) => {
+                    // 省略記号を挿入
+                    const prevPage = array[index - 1]
+                    const showEllipsis = prevPage && page - prevPage > 1
+
+                    return (
+                      <div key={page} className="flex items-center space-x-2">
+                        {showEllipsis && (
+                          <span className="text-gray-400 px-2">...</span>
+                        )}
+                        <button
+                          onClick={() => handlePageChange(page)}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            currentPage === page
+                              ? 'bg-primary-600 text-white shadow-md'
+                              : 'bg-white text-gray-700 hover:bg-primary-50 hover:text-primary-600 shadow-md'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      </div>
+                    )
+                  })}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`p-2 rounded-lg transition-colors ${
+                  currentPage === totalPages
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 hover:bg-primary-50 hover:text-primary-600 shadow-md'
+                }`}
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
