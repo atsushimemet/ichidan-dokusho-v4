@@ -3,13 +3,15 @@ export interface Book {
   title: string
   author: string
   description?: string
-  isbn?: string
-  cover_image_url?: string
-  category?: string
   tags?: string[]
-  recommended_by?: string
   created_at: string
   updated_at: string
+  amazon_paper_url?: string
+  amazon_ebook_url?: string
+  amazon_audiobook_url?: string
+  summary_text_url?: string
+  summary_video_url?: string
+  recommended_by_post_url?: string
 }
 
 export interface Memo {
