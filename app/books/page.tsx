@@ -62,7 +62,8 @@ export default function BooksPage() {
     const fetchBooks = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch('/api/books')
+        // 全件取得するために大きなlimitを指定
+        const response = await fetch('/api/books?limit=1000')
         if (!response.ok) {
           throw new Error('Failed to fetch books')
         }
@@ -84,14 +85,13 @@ export default function BooksPage() {
     return Array.from(new Set(books.flatMap(book => book.tags || []))).sort()
   }, [books])
 
-  // ランダムに10個のタグを選択（初期表示用）
-  const randomTags = useMemo(() => {
-    const shuffled = [...allTags].sort(() => Math.random() - 0.5)
-    return shuffled.slice(0, 10)
+  // 最初の10個のタグ（デフォルト表示用）
+  const defaultTags = useMemo(() => {
+    return allTags.slice(0, 10)
   }, [allTags])
 
   // 表示するタグリスト
-  const displayedTags = showAllTags ? allTags : randomTags
+  const displayedTags = showAllTags ? allTags : defaultTags
 
   // フィルタリングされた書籍
   const filteredBooks = useMemo(() => {
