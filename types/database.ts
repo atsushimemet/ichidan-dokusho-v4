@@ -5,6 +5,9 @@ export interface Book {
   description?: string
   tags?: string[]
   asin?: string | null
+  category?: string | null
+  cover_image_url?: string | null
+  recommended_by?: string | null
   created_at: string
   updated_at: string
   amazon_paper_url?: string
@@ -12,7 +15,7 @@ export interface Book {
   amazon_audiobook_url?: string
   summary_text_url?: string
   summary_video_url?: string
-  recommended_by_post_url?: string
+  recommended_by_post_url?: string | null
 }
 
 export interface Memo {
