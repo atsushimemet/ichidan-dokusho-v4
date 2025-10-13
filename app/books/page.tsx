@@ -330,17 +330,15 @@ export default function BooksPage() {
                       )}
 
                       {/* 推薦ポストリンク */}
-                      {book.recommended_by_post_url && (
-                        <a
-                          href={book.recommended_by_post_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 transition-colors text-sm mt-auto"
-                        >
-                          <Twitter className="w-4 h-4" />
-                          <span>推薦ポスト</span>
-                        </a>
-                      )}
+                      <a
+                        href={`https://x.com/search?q=${encodeURIComponent(book.title)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 transition-colors text-sm mt-auto"
+                      >
+                        <Twitter className="w-4 h-4" />
+                        <span>Xポストを見る</span>
+                      </a>
                     </div>
                   </div>
                 </div>
