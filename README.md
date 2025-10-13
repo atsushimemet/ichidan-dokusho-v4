@@ -80,8 +80,14 @@ ichidan-dokusho-v4/
 │   ├── MemoForm.tsx       # メモ作成フォーム
 │   └── QuizSection.tsx    # クイズ機能
 ├── docs/                  # プロジェクト資料
-│   ├── business_plan.md   # 事業計画書
-│   └── mvp_requirements.md # MVP要件定義
+│   ├── planning/          # 開発計画・要件
+│   │   ├── business_plan.md    # 事業計画書
+│   │   └── mvp_requirements.md # MVP要件定義
+│   └── completed-issues/  # 完了済み課題の記録
+│       └── issue-2/
+│           ├── ISSUE_3_COMPLETION_REPORT.md
+│           ├── TEST_CASES_AFFILIATE_LINKS.md
+│           └── TEST_CASES_ISSUE_3.md
 ├── wireframes/            # デザイン資料
 └── package.json           # 依存関係定義
 ```
