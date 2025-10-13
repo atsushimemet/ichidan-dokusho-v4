@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
   }
   
   // 短縮URLかどうかをチェック
-  const isShortUrl = url.includes('amzn.to') || url.includes('a.co')
+  const isShortUrl = url.includes('amzn.to') || url.includes('amzn.asia') || url.includes('a.co')
   
   let asin: string | null = null
   

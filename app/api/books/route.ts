@@ -32,25 +32,27 @@ async function resolveShortUrl(shortUrl: string): Promise<string | null> {
   }
   
   try {
-    // HEAD リクエストを送信してリダイレクト先を取得
+    // GETリクエストを送信してリダイレクト先を取得
     const response = await fetch(shortUrl, {
-      method: 'HEAD',
+      method: 'GET',
       redirect: 'follow',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       }
     })
     
     // リダイレクト先のURLからASINを抽出
     const finalUrl = response.url
+    console.log(`Resolved ${shortUrl} to ${finalUrl}`)
     const asin = extractASIN(finalUrl)
+    console.log(`Extracted ASIN: ${asin}`)
     
     // キャッシュに保存
     asinCache.set(shortUrl, asin)
     
     return asin
   } catch (error) {
-    console.error('Error resolving short URL:', error)
+    console.error('Error resolving short URL:', shortUrl, error)
     asinCache.set(shortUrl, null)
     return null
   }
@@ -68,7 +70,7 @@ async function getBookASIN(book: any): Promise<string | null> {
     if (!url) continue
     
     // 短縮URLかどうかをチェック
-    const isShortUrl = url.includes('amzn.to') || url.includes('a.co')
+    const isShortUrl = url.includes('amzn.to') || url.includes('amzn.asia') || url.includes('a.co')
     
     if (isShortUrl) {
       // 短縮URLの場合、解決してASINを取得
