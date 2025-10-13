@@ -15,6 +15,45 @@ function generateAmazonImageUrl(asin: string, size: 'large' | 'medium' | 'small'
   return `http://images.amazon.com/images/P/${asin}.09_${sizeMap[size]}_.jpg`
 }
 
+// ASIN抽出関数（クライアント側用）
+function extractASINFromUrl(url: string): string | null {
+  if (!url) return null
+  
+  const patterns = [
+    /\/dp\/([A-Z0-9]{10})/i,
+    /\/product\/([A-Z0-9]{10})/i,
+    /\/gp\/product\/([A-Z0-9]{10})/i,
+  ]
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match) {
+      return match[1]
+    }
+  }
+  
+  return null
+}
+
+// 非アフィリエイトリンクを生成する関数
+function generateNonAffiliateLink(url: string | undefined | null, asin: string | null): string | null {
+  if (!url) return null
+  
+  // ASINが取得できている場合は、それを使って非アフィリエイトリンクを生成
+  if (asin) {
+    return `https://www.amazon.co.jp/dp/${asin}`
+  }
+  
+  // ASINが取得できていない場合は、URLから抽出を試みる
+  const extractedAsin = extractASINFromUrl(url)
+  if (extractedAsin) {
+    return `https://www.amazon.co.jp/dp/${extractedAsin}`
+  }
+  
+  // ASINが抽出できない場合は元のURLをそのまま返す
+  return url
+}
+
 interface Book {
   id: string
   title: string
@@ -38,6 +77,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
   const [relatedBooks, setRelatedBooks] = useState<Book[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isAffiliateMode, setIsAffiliateMode] = useState(true)
 
   // 書籍詳細データをAPIから取得
   useEffect(() => {
@@ -249,11 +289,23 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
 
                 {/* Book Links */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">書籍のリンク</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800">書籍のリンク</h3>
+                    <button
+                      onClick={() => setIsAffiliateMode(!isAffiliateMode)}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        isAffiliateMode
+                          ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          : 'bg-green-100 text-green-700 hover:bg-green-200'
+                      }`}
+                    >
+                      {isAffiliateMode ? 'アフィリエイトをOFFにする' : 'アフィリエイトOFF'}
+                    </button>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {book.amazon_paper_url && (
                       <a
-                        href={book.amazon_paper_url}
+                        href={isAffiliateMode ? book.amazon_paper_url : (generateNonAffiliateLink(book.amazon_paper_url, book.asin) || book.amazon_paper_url)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -265,7 +317,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
                     
                     {book.amazon_ebook_url && (
                       <a
-                        href={book.amazon_ebook_url}
+                        href={isAffiliateMode ? book.amazon_ebook_url : (generateNonAffiliateLink(book.amazon_ebook_url, book.asin) || book.amazon_ebook_url)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -277,7 +329,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
                     
                     {book.amazon_audiobook_url && (
                       <a
-                        href={book.amazon_audiobook_url}
+                        href={isAffiliateMode ? book.amazon_audiobook_url : (generateNonAffiliateLink(book.amazon_audiobook_url, book.asin) || book.amazon_audiobook_url)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
