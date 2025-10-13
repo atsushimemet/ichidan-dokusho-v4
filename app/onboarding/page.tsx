@@ -170,7 +170,7 @@ export default function OnboardingPage() {
                     className={`w-full text-left p-4 rounded-xl border transition-colors ${
                       selectedAnswers[currentStep] === index
                         ? 'border-primary-500 bg-primary-50 text-primary-800'
-                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        : 'border-gray-200 text-gray-800 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900'
                     }`}
                   >
                     <div className="flex items-center space-x-3">
