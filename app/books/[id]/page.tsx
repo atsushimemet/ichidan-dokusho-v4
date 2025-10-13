@@ -35,6 +35,7 @@ interface Book {
 export default function BookDetailPage({ params }: { params: { id: string } }) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [book, setBook] = useState<Book | null>(null)
+  const [relatedBooks, setRelatedBooks] = useState<Book[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -59,6 +60,45 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
 
     fetchBook()
   }, [params.id])
+
+  // 関連書籍（同じタグを持つ書籍）を取得
+  useEffect(() => {
+    const fetchRelatedBooks = async () => {
+      if (!book || !book.tags || book.tags.length === 0) {
+        setRelatedBooks([])
+        return
+      }
+
+      try {
+        // 全書籍を取得
+        const response = await fetch('/api/books?limit=1000')
+        if (!response.ok) {
+          throw new Error('Failed to fetch books')
+        }
+        const data = await response.json()
+        const allBooks = data.books || []
+
+        // 同じタグを持つ書籍をフィルタリング（現在の書籍を除く）
+        const booksWithSameTags = allBooks.filter((b: Book) => {
+          if (b.id === book.id) return false // 現在の書籍を除外
+          if (!b.tags || b.tags.length === 0) return false
+          // 少なくとも1つのタグが一致するかチェック
+          return b.tags.some(tag => book.tags!.includes(tag))
+        })
+
+        // ランダムに並び替えて最大5件まで取得
+        const shuffled = booksWithSameTags.sort(() => Math.random() - 0.5)
+        const limited = shuffled.slice(0, 5)
+        
+        setRelatedBooks(limited)
+      } catch (err) {
+        console.error('Error fetching related books:', err)
+        setRelatedBooks([])
+      }
+    }
+
+    fetchRelatedBooks()
+  }, [book])
 
   // メモ一覧データ
   const memos = [
@@ -88,47 +128,15 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
     }
   ]
 
-  // 関連書籍データ
-  const relatedBooks = [
-    {
-      id: 1,
-      title: 'アウトプット大全',
-      author: '樺沢紫苑',
-      tags: ['自己啓発', 'アウトプット', '学習法']
-    },
-    {
-      id: 2,
-      title: 'デジタル時代の読書術',
-      author: '佐藤優',
-      tags: ['読書術', 'デジタル', '情報処理']
-    },
-    {
-      id: 3,
-      title: '知的生産の技術',
-      author: '梅棹忠夫',
-      tags: ['知的生産', '情報整理', '研究法']
-    },
-    {
-      id: 4,
-      title: '思考の整理学',
-      author: '外山滋比古',
-      tags: ['思考法', '整理術', '創造性']
-    },
-    {
-      id: 5,
-      title: '読書について',
-      author: 'ショーペンハウアー',
-      tags: ['読書論', '哲学', '古典']
-    }
-  ]
-
   const totalSlides = relatedBooks.length
 
   const nextSlide = () => {
+    if (totalSlides === 0) return
     setCurrentSlide((prev) => (prev + 1) % totalSlides)
   }
 
   const prevSlide = () => {
+    if (totalSlides === 0) return
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
   }
 
@@ -219,6 +227,23 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
                     <p className="text-base text-gray-700 leading-relaxed">
                       {book.description}
                     </p>
+                  </div>
+                )}
+
+                {/* Book Tags */}
+                {book.tags && book.tags.length > 0 && (
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">タグ</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {book.tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="px-4 py-2 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -359,78 +384,109 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
             </div>
           </div>
 
-          {/* Related Books Slider */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 text-center">
-              こんな本も一緒に見られています
-            </h2>
-            
-            <div className="relative">
-              <div className="overflow-hidden">
-                <div 
-                  className="flex transition-transform duration-300 ease-in-out"
-                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                >
-                  {relatedBooks.map((book) => (
-                    <div key={book.id} className="w-full flex-shrink-0">
-                      <div className="flex justify-center">
-                        <div className="bg-gray-50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow max-w-sm w-full">
-                          <div className="flex flex-col items-center text-center">
-                            <div className="w-20 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center mb-6">
-                              <BookOpen className="w-10 h-10 text-primary-600" />
-                            </div>
-                            <Link href={`/books/${book.id}`} className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2 hover:text-primary-600 transition-colors">
-                              {book.title}
-                            </Link>
-                            <p className="text-base text-gray-600 mb-4">
-                              {book.author}
-                            </p>
-                            
-                            {/* Tags */}
-                            <div className="flex flex-wrap gap-2 justify-center mb-6">
-                              {book.tags.map((tag, tagIndex) => (
-                                <span
-                                  key={tagIndex}
-                                  className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
+          {/* Related Books Slider - 関連書籍が1件以上ある場合のみ表示 */}
+          {relatedBooks.length > 0 && (
+            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 text-center">
+                こんな本も一緒に見られています
+              </h2>
+              
+              <div className="relative">
+                <div className="overflow-hidden">
+                  <div 
+                    className="flex transition-transform duration-300 ease-in-out"
+                    style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                  >
+                    {relatedBooks.map((relatedBook) => (
+                      <div key={relatedBook.id} className="w-full flex-shrink-0">
+                        <div className="flex justify-center">
+                          <div className="bg-gray-50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow max-w-sm w-full">
+                            <div className="flex flex-col items-center text-center">
+                              {/* 書籍画像 */}
+                              {relatedBook.asin ? (
+                                <div className="w-20 h-24 mb-6">
+                                  <img
+                                    src={generateAmazonImageUrl(relatedBook.asin)}
+                                    alt={relatedBook.title}
+                                    className="w-full h-full object-cover rounded-lg shadow-md"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement
+                                      target.style.display = 'none'
+                                      const fallback = target.nextElementSibling as HTMLElement
+                                      if (fallback) fallback.style.display = 'flex'
+                                    }}
+                                  />
+                                  <div className="w-20 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center hidden">
+                                    <BookOpen className="w-10 h-10 text-primary-600" />
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="w-20 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center mb-6">
+                                  <BookOpen className="w-10 h-10 text-primary-600" />
+                                </div>
+                              )}
+                              
+                              <Link href={`/books/${relatedBook.id}`} className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2 hover:text-primary-600 transition-colors">
+                                {relatedBook.title}
+                              </Link>
+                              <p className="text-base text-gray-600 mb-4">
+                                {relatedBook.author}
+                              </p>
+                              
+                              {/* Tags */}
+                              {relatedBook.tags && relatedBook.tags.length > 0 && (
+                                <div className="flex flex-wrap gap-2 justify-center mb-6">
+                                  {relatedBook.tags.slice(0, 3).map((tag, tagIndex) => (
+                                    <span
+                                      key={tagIndex}
+                                      className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full"
+                                    >
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
+                
+                {relatedBooks.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevSlide}
+                      className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
+                    >
+                      <ChevronRight className="w-5 h-5 text-gray-600 rotate-180" />
+                    </button>
+                    <button
+                      onClick={nextSlide}
+                      className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
+                    >
+                      <ChevronRight className="w-5 h-5 text-gray-600" />
+                    </button>
+                  </>
+                )}
               </div>
               
-              <button
-                onClick={prevSlide}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
-              >
-                <ChevronRight className="w-5 h-5 text-gray-600 rotate-180" />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
-              >
-                <ChevronRight className="w-5 h-5 text-gray-600" />
-              </button>
+              {relatedBooks.length > 1 && (
+                <div className="flex justify-center mt-8 space-x-2">
+                  {Array.from({ length: totalSlides }).map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentSlide(index)}
+                      className={`w-3 h-3 rounded-full transition-colors ${
+                        index === currentSlide ? 'bg-primary-600' : 'bg-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-            
-            <div className="flex justify-center mt-8 space-x-2">
-              {Array.from({ length: totalSlides }).map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-colors ${
-                    index === currentSlide ? 'bg-primary-600' : 'bg-gray-300'
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
