@@ -2,13 +2,7 @@
 
 import Navigation from '@/components/Navigation'
 import { Book } from '@/types/database'
-import {
-  BookOpen,
-  ChevronLeft,
-  ChevronRight,
-  ExternalLink,
-  Twitter,
-} from 'lucide-react'
+import { ArrowDown, BookOpen, CheckCircle, ChevronLeft, ChevronRight, ExternalLink, Twitter } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -190,6 +184,7 @@ export default function OnboardingPage() {
   })
   const [recommendedBooks, setRecommendedBooks] = useState<Book[]>([])
   const [isCompleted, setIsCompleted] = useState(false)
+  const [showPopup, setShowPopup] = useState(false)
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -213,6 +208,12 @@ export default function OnboardingPage() {
 
     fetchBooks()
   }, [])
+
+  useEffect(() => {
+    if (!showPopup) return undefined
+    const timer = window.setTimeout(() => setShowPopup(false), 1600)
+    return () => window.clearTimeout(timer)
+  }, [showPopup])
 
   const tagOptionList = useMemo<OnboardingOption[]>(() => {
     if (!books.length) {
@@ -349,6 +350,7 @@ export default function OnboardingPage() {
     const recommendations = computeRecommendations()
     setRecommendedBooks(recommendations)
     setIsCompleted(true)
+    setShowPopup(true)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -602,6 +604,7 @@ export default function OnboardingPage() {
                     setCurrentStep(1)
                     setSelectedAnswers({ 1: null, 2: null, 3: null })
                     setIsCompleted(false)
+                    setShowPopup(false)
                   }}
                   className="inline-flex items-center space-x-2 rounded-xl border border-primary-600 px-6 py-3 text-primary-600 transition-colors hover:bg-primary-50"
                 >
@@ -613,6 +616,30 @@ export default function OnboardingPage() {
           )}
         </div>
       </div>
+
+      {showPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="mx-4 w-full max-w-md animate-fade-in rounded-2xl bg-white p-8 shadow-2xl">
+            <div className="text-center">
+              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                <CheckCircle className="h-10 w-10 text-green-600" />
+              </div>
+              <h3 className="mb-4 text-2xl font-bold text-gray-900">設定完了！</h3>
+              <p className="mb-6 text-lg text-gray-600">
+                あなたの回答に基づくおすすめを表示しました。
+                <br />
+                下にスクロールしてご確認ください。
+              </p>
+              <div className="flex flex-col items-center">
+                <div className="mb-4 text-sm text-gray-500">スクロールして結果を見る</div>
+                <div className="animate-bounce">
+                  <ArrowDown className="h-8 w-8 text-primary-600" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
