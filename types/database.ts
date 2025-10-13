@@ -4,6 +4,7 @@ export interface Book {
   author: string
   description?: string
   tags?: string[]
+  asin?: string | null
   created_at: string
   updated_at: string
   amazon_paper_url?: string
