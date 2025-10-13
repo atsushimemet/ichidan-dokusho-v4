@@ -1,6 +1,89 @@
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { NextRequest, NextResponse } from 'next/server'
 
+// ASIN抽出関数
+function extractASIN(url: string): string | null {
+  if (!url) return null
+  
+  // Amazon URLからASINを抽出
+  const patterns = [
+    /\/dp\/([A-Z0-9]{10})/i,  // /dp/ASIN
+    /\/product\/([A-Z0-9]{10})/i,  // /product/ASIN
+    /\/gp\/product\/([A-Z0-9]{10})/i,  // /gp/product/ASIN
+  ]
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match) {
+      return match[1]
+    }
+  }
+  
+  return null
+}
+
+// 短縮URLを解決してASINを取得（キャッシュ付き）
+const asinCache = new Map<string, string | null>()
+
+async function resolveShortUrl(shortUrl: string): Promise<string | null> {
+  // キャッシュをチェック
+  if (asinCache.has(shortUrl)) {
+    return asinCache.get(shortUrl) || null
+  }
+  
+  try {
+    // HEAD リクエストを送信してリダイレクト先を取得
+    const response = await fetch(shortUrl, {
+      method: 'HEAD',
+      redirect: 'follow',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+      }
+    })
+    
+    // リダイレクト先のURLからASINを抽出
+    const finalUrl = response.url
+    const asin = extractASIN(finalUrl)
+    
+    // キャッシュに保存
+    asinCache.set(shortUrl, asin)
+    
+    return asin
+  } catch (error) {
+    console.error('Error resolving short URL:', error)
+    asinCache.set(shortUrl, null)
+    return null
+  }
+}
+
+// 書籍からASINを取得する関数（優先順位: paper -> ebook -> audiobook）
+async function getBookASIN(book: any): Promise<string | null> {
+  const urls = [
+    book.amazon_paper_url,
+    book.amazon_ebook_url,
+    book.amazon_audiobook_url
+  ]
+  
+  for (const url of urls) {
+    if (!url) continue
+    
+    // 短縮URLかどうかをチェック
+    const isShortUrl = url.includes('amzn.to') || url.includes('a.co')
+    
+    if (isShortUrl) {
+      // 短縮URLの場合、解決してASINを取得
+      const asin = await resolveShortUrl(url)
+      if (asin) return asin
+    } else {
+      // 通常のURLの場合、直接ASINを抽出
+      const asin = extractASIN(url)
+      if (asin) return asin
+    }
+  }
+  
+  return null
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -32,7 +115,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch books' }, { status: 500 })
     }
 
-    return NextResponse.json({ books: data })
+    // 各書籍にASINを追加
+    const booksWithAsin = await Promise.all(
+      (data || []).map(async (book) => {
+        const asin = await getBookASIN(book)
+        return {
+          ...book,
+          asin: asin || null
+        }
+      })
+    )
+
+    return NextResponse.json({ books: booksWithAsin })
   } catch (error) {
     console.error('Unexpected error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

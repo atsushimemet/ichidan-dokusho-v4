@@ -8,30 +8,14 @@ import { ArrowRight, BarChart3, BookOpen, Brain, ChevronRight, Clock, FileText, 
 import Link from 'next/link'
 import { useState } from 'react'
 
-// ASIN抽出関数
-function extractASIN(url: string): string | null {
-  if (!url) return null
-  
-  // Amazon URLからASINを抽出
-  const patterns = [
-    /\/dp\/([A-Z0-9]{10})/,  // /dp/ASIN
-    /\/product\/([A-Z0-9]{10})/,  // /product/ASIN
-    /\/gp\/product\/([A-Z0-9]{10})/,  // /gp/product/ASIN
-  ]
-  
-  for (const pattern of patterns) {
-    const match = url.match(pattern)
-    if (match) {
-      return match[1]
-    }
-  }
-  
-  return null
-}
-
 // Amazon画像URL生成関数
-function generateAmazonImageUrl(asin: string): string {
-  return `https://images-na.ssl-images-amazon.com/images/P/${asin}.09.MZZZZZZZ`
+function generateAmazonImageUrl(asin: string, size: 'large' | 'medium' | 'small' = 'small'): string {
+  const sizeMap = {
+    large: 'SL500',
+    medium: 'SL160',
+    small: 'SL110'
+  }
+  return `http://images.amazon.com/images/P/${asin}.09_${sizeMap[size]}_.jpg`
 }
 
 export default function Home() {
@@ -222,10 +206,10 @@ export default function Home() {
                             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow max-w-sm w-full">
                               <div className="flex flex-col items-center text-center">
                                 {/* 書籍画像またはデフォルトアイコン */}
-                                {book.amazon_paper_url && extractASIN(book.amazon_paper_url) ? (
+                                {book.asin ? (
                                   <div className="w-20 h-24 mb-6">
                                     <img
-                                      src={generateAmazonImageUrl(extractASIN(book.amazon_paper_url)!)}
+                                      src={generateAmazonImageUrl(book.asin)}
                                       alt={book.title}
                                       className="w-full h-full object-cover rounded-lg shadow-md"
                                       onError={(e) => {

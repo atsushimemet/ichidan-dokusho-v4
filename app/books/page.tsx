@@ -1,34 +1,18 @@
 'use client'
 
-import { BookOpen, Twitter, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react'
-import Link from 'next/link'
-import { useState, useEffect, useMemo } from 'react'
 import Navigation from '@/components/Navigation'
-
-// ASIN抽出関数
-function extractASIN(url: string): string | null {
-  if (!url) return null
-  
-  // Amazon URLからASINを抽出
-  const patterns = [
-    /\/dp\/([A-Z0-9]{10})/,  // /dp/ASIN
-    /\/product\/([A-Z0-9]{10})/,  // /product/ASIN
-    /\/gp\/product\/([A-Z0-9]{10})/,  // /gp/product/ASIN
-  ]
-  
-  for (const pattern of patterns) {
-    const match = url.match(pattern)
-    if (match) {
-      return match[1]
-    }
-  }
-  
-  return null
-}
+import { BookOpen, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Twitter } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useMemo, useState } from 'react'
 
 // Amazon画像URL生成関数
-function generateAmazonImageUrl(asin: string): string {
-  return `https://images-na.ssl-images-amazon.com/images/P/${asin}.09.MZZZZZZZ`
+function generateAmazonImageUrl(asin: string, size: 'large' | 'medium' | 'small' = 'small'): string {
+  const sizeMap = {
+    large: 'SL500',
+    medium: 'SL160',
+    small: 'SL110'
+  }
+  return `http://images.amazon.com/images/P/${asin}.09_${sizeMap[size]}_.jpg`
 }
 
 interface Book {
@@ -45,6 +29,7 @@ interface Book {
   summary_video_url?: string
   cover_image_url?: string
   created_at: string
+  asin?: string | null
 }
 
 const ITEMS_PER_PAGE = 50
@@ -240,10 +225,10 @@ export default function BooksPage() {
                   <div className="flex flex-col h-full">
                     {/* 書籍画像 */}
                     <div className="flex justify-center mb-4">
-                      {book.amazon_paper_url && extractASIN(book.amazon_paper_url) ? (
+                      {book.asin ? (
                         <div className="w-24 h-32 relative">
                           <img
-                            src={generateAmazonImageUrl(extractASIN(book.amazon_paper_url)!)}
+                            src={generateAmazonImageUrl(book.asin)}
                             alt={book.title}
                             className="w-full h-full object-cover rounded-lg shadow-md"
                             onError={(e) => {

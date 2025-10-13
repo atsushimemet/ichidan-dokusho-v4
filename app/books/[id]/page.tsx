@@ -3,32 +3,16 @@
 import Navigation from '@/components/Navigation'
 import { BookOpen, Calendar, ChevronRight, ExternalLink, User } from 'lucide-react'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
-
-// ASIN抽出関数
-function extractASIN(url: string): string | null {
-  if (!url) return null
-  
-  // Amazon URLからASINを抽出
-  const patterns = [
-    /\/dp\/([A-Z0-9]{10})/,  // /dp/ASIN
-    /\/product\/([A-Z0-9]{10})/,  // /product/ASIN
-    /\/gp\/product\/([A-Z0-9]{10})/,  // /gp/product/ASIN
-  ]
-  
-  for (const pattern of patterns) {
-    const match = url.match(pattern)
-    if (match) {
-      return match[1]
-    }
-  }
-  
-  return null
-}
+import { useEffect, useState } from 'react'
 
 // Amazon画像URL生成関数
-function generateAmazonImageUrl(asin: string): string {
-  return `https://images-na.ssl-images-amazon.com/images/P/${asin}.09.MZZZZZZZ`
+function generateAmazonImageUrl(asin: string, size: 'large' | 'medium' | 'small' = 'small'): string {
+  const sizeMap = {
+    large: 'SL500',
+    medium: 'SL160',
+    small: 'SL110'
+  }
+  return `http://images.amazon.com/images/P/${asin}.09_${sizeMap[size]}_.jpg`
 }
 
 interface Book {
@@ -45,6 +29,7 @@ interface Book {
   summary_video_url?: string
   cover_image_url?: string
   created_at: string
+  asin?: string | null
 }
 
 export default function BookDetailPage({ params }: { params: { id: string } }) {
@@ -193,10 +178,10 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
             <div className="flex flex-col md:flex-row items-start space-y-6 md:space-y-0 md:space-x-8">
               {/* Book Image */}
               <div className="flex-shrink-0 mx-auto md:mx-0">
-                {book.amazon_paper_url && extractASIN(book.amazon_paper_url) ? (
+                {book.asin ? (
                   <div className="w-24 h-32 md:w-32 md:h-40">
                     <img
-                      src={generateAmazonImageUrl(extractASIN(book.amazon_paper_url)!)}
+                      src={generateAmazonImageUrl(book.asin, 'medium')}
                       alt={book.title}
                       className="w-full h-full object-cover rounded-xl shadow-lg"
                       onError={(e) => {
