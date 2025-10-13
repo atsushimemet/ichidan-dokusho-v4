@@ -54,6 +54,20 @@ function generateNonAffiliateLink(url: string | undefined | null, asin: string |
   return url
 }
 
+function resolveBookLink(
+  url: string | undefined | null,
+  asin: string | undefined | null,
+  isAffiliateMode: boolean
+): string {
+  if (!url) {
+    return ''
+  }
+  if (isAffiliateMode) {
+    return url
+  }
+  return generateNonAffiliateLink(url, asin ?? null) ?? url
+}
+
 interface Book {
   id: string
   title: string
@@ -305,7 +319,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {book.amazon_paper_url && (
                       <a
-                        href={isAffiliateMode ? book.amazon_paper_url : (generateNonAffiliateLink(book.amazon_paper_url, book.asin) || book.amazon_paper_url)}
+                        href={resolveBookLink(book.amazon_paper_url, book.asin, isAffiliateMode)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -317,7 +331,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
                     
                     {book.amazon_ebook_url && (
                       <a
-                        href={isAffiliateMode ? book.amazon_ebook_url : (generateNonAffiliateLink(book.amazon_ebook_url, book.asin) || book.amazon_ebook_url)}
+                        href={resolveBookLink(book.amazon_ebook_url, book.asin, isAffiliateMode)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -329,7 +343,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
                     
                     {book.amazon_audiobook_url && (
                       <a
-                        href={isAffiliateMode ? book.amazon_audiobook_url : (generateNonAffiliateLink(book.amazon_audiobook_url, book.asin) || book.amazon_audiobook_url)}
+                        href={resolveBookLink(book.amazon_audiobook_url, book.asin, isAffiliateMode)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
