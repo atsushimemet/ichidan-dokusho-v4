@@ -36,7 +36,7 @@ const ITEMS_PER_PAGE = 50
 
 export default function BooksPage() {
   const [currentPage, setCurrentPage] = useState(1)
-  const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [books, setBooks] = useState<Book[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -78,12 +78,17 @@ export default function BooksPage() {
   // 表示するタグリスト
   const displayedTags = showAllTags ? allTags : defaultTags
 
-  // フィルタリングされた書籍
+  // フィルタリングされた書籍（選択されたすべてのタグを含む書籍を表示）
   const filteredBooks = useMemo(() => {
-    return selectedTag 
-      ? books.filter(book => book.tags?.includes(selectedTag))
-      : books
-  }, [books, selectedTag])
+    if (selectedTags.length === 0) {
+      return books
+    }
+    return books.filter(book => {
+      if (!book.tags || book.tags.length === 0) return false
+      // 選択されたすべてのタグを含むかチェック
+      return selectedTags.every(selectedTag => book.tags!.includes(selectedTag))
+    })
+  }, [books, selectedTags])
 
   // ページネーション計算
   const totalPages = Math.ceil(filteredBooks.length / ITEMS_PER_PAGE)
@@ -91,9 +96,22 @@ export default function BooksPage() {
   const endIndex = startIndex + ITEMS_PER_PAGE
   const currentBooks = filteredBooks.slice(startIndex, endIndex)
 
-  const handleTagSelect = (tag: string | null) => {
-    setSelectedTag(tag)
+  const handleTagToggle = (tag: string) => {
+    setSelectedTags(prev => {
+      if (prev.includes(tag)) {
+        // 既に選択されている場合は削除
+        return prev.filter(t => t !== tag)
+      } else {
+        // 選択されていない場合は追加
+        return [...prev, tag]
+      }
+    })
     setCurrentPage(1) // フィルタ変更時に最初のページに戻る
+  }
+
+  const handleClearTags = () => {
+    setSelectedTags([])
+    setCurrentPage(1)
   }
 
   const handlePageChange = (page: number) => {
@@ -154,31 +172,36 @@ export default function BooksPage() {
 
           {/* Tag Filter */}
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-8">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">タグでフィルタ</h2>
-            <div className="flex flex-wrap gap-2 mb-4">
-              <button
-                onClick={() => handleTagSelect(null)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  selectedTag === null
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                すべて
-              </button>
-              {displayedTags.map((tag) => (
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-800">タグでフィルタ（複数選択可）</h2>
+              {selectedTags.length > 0 && (
                 <button
-                  key={tag}
-                  onClick={() => handleTagSelect(tag)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    selectedTag === tag
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  onClick={handleClearTags}
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
                 >
-                  {tag}
+                  すべてクリア
                 </button>
-              ))}
+              )}
+            </div>
+            
+            <div className="flex flex-wrap gap-2 mb-4">
+              {displayedTags.map((tag) => {
+                const isSelected = selectedTags.includes(tag)
+                return (
+                  <button
+                    key={tag}
+                    onClick={() => handleTagToggle(tag)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      isSelected
+                        ? 'bg-primary-600 text-white shadow-md ring-2 ring-primary-300'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {isSelected && <span className="mr-1">✓</span>}
+                    {tag}
+                  </button>
+                )
+              })}
             </div>
 
             {/* もっとタグを見るアコーディオン */}
@@ -201,9 +224,30 @@ export default function BooksPage() {
               </button>
             )}
 
-            {selectedTag && (
-              <div className="mt-4 text-sm text-gray-600">
-                「{selectedTag}」でフィルタ中 ({filteredBooks.length}件)
+            {selectedTags.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center space-x-2 text-sm">
+                  <span className="text-gray-600 font-medium">選択中:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedTags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full flex items-center space-x-1"
+                      >
+                        <span>{tag}</span>
+                        <button
+                          onClick={() => handleTagToggle(tag)}
+                          className="ml-1 hover:text-primary-900 transition-colors"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="text-sm text-gray-600 mt-2">
+                  {filteredBooks.length}件の書籍が見つかりました
+                </div>
               </div>
             )}
           </div>
