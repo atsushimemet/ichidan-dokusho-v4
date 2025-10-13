@@ -28,9 +28,8 @@ export interface Store {
   is_active: boolean
   created_at: string
   updated_at: string
-  // リレーション
   area?: Area
-  category_tags?: CategoryTag[]
+  category_tags?: StoreCategoryTag[]
 }
 
 export interface StoreCategoryTag {
@@ -38,6 +37,7 @@ export interface StoreCategoryTag {
   store_id: string
   category_tag_id: number
   created_at: string
+  category_tag: CategoryTag
 }
 
 export interface CreateStoreData {
@@ -52,4 +52,3 @@ export interface CreateStoreData {
   is_active?: boolean
   category_tag_ids?: number[]
 }
-
