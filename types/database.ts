@@ -23,6 +23,7 @@ export interface Memo {
   book_id: string
   user_id: string
   content: string
+  is_public: boolean
   page_number?: number
   chapter?: string
   tags?: string[]
@@ -32,6 +33,10 @@ export interface Memo {
     id: string
     title: string
     author: string
+  }
+  user_profiles?: {
+    id: string
+    name: string | null
   }
 }
 
