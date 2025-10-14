@@ -2,7 +2,7 @@
 
 import Navigation from '@/components/Navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { BookOpen, Save, Lock, Globe } from 'lucide-react'
+import { BookOpen, Globe, Lock, Save } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -250,4 +250,3 @@ export default function EditMemoPage({
     </div>
   )
 }
-

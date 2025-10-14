@@ -26,4 +26,3 @@ CREATE POLICY "Memos are deletable by owner" ON memos
 
 -- Create index for better performance on is_public queries
 CREATE INDEX IF NOT EXISTS idx_memos_is_public ON memos(is_public);
-

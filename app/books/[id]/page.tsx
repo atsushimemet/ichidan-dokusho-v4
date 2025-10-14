@@ -2,7 +2,7 @@
 
 import Navigation from '@/components/Navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { BookOpen, Calendar, ChevronRight, ExternalLink, User, Plus, Edit2, Trash2, Lock, Globe } from 'lucide-react'
+import { BookOpen, Calendar, ChevronRight, Edit2, ExternalLink, Globe, Lock, Plus, Trash2, User } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
