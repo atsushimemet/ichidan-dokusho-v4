@@ -19,6 +19,10 @@ export async function GET(request: NextRequest) {
           id,
           title,
           author
+        ),
+        user_profiles (
+          id,
+          name
         )
       `)
       .order('created_at', { ascending: false })
@@ -49,7 +53,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { book_id, user_id, content, page_number, chapter, tags } = body
+    const { book_id, user_id, content, is_public, page_number, chapter, tags } = body
 
     const supabase = createServerSupabaseClient()
     
@@ -60,6 +64,7 @@ export async function POST(request: NextRequest) {
           book_id,
           user_id,
           content,
+          is_public: is_public ?? false,
           page_number,
           chapter,
           tags
@@ -71,6 +76,10 @@ export async function POST(request: NextRequest) {
           id,
           title,
           author
+        ),
+        user_profiles (
+          id,
+          name
         )
       `)
       .single()

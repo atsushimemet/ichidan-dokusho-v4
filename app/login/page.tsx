@@ -35,10 +35,17 @@ export default function LoginPage() {
     try {
       const supabase = createClient()
       
+      // 現在のページのURLを使用（Vercelプレビュー環境でも正しく動作）
+      const currentUrl = typeof window !== 'undefined' ? window.location.origin : ''
+      const callbackUrl = `${currentUrl}/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`
+      
+      // デバッグ用：リダイレクトURLをログ出力
+      console.log('Sending magic link with redirect URL:', callbackUrl)
+      
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`,
+          emailRedirectTo: callbackUrl,
           shouldCreateUser: true // ユーザーが存在しない場合は自動作成
         }
       })

@@ -1,7 +1,8 @@
 'use client'
 
 import Navigation from '@/components/Navigation'
-import { BookOpen, Calendar, ChevronRight, ExternalLink, User } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
+import { BookOpen, Calendar, ChevronRight, Edit2, ExternalLink, Globe, Lock, Plus, Trash2, User } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
@@ -85,13 +86,29 @@ interface Book {
   asin?: string | null
 }
 
+interface Memo {
+  id: string
+  book_id: string
+  user_id: string
+  content: string
+  is_public: boolean
+  created_at: string
+  user_profiles?: {
+    id: string
+    name: string | null
+  }
+}
+
 export default function BookDetailPage({ params }: { params: { id: string } }) {
+  const { user } = useAuth()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [book, setBook] = useState<Book | null>(null)
   const [relatedBooks, setRelatedBooks] = useState<Book[]>([])
+  const [memos, setMemos] = useState<Memo[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isAffiliateMode, setIsAffiliateMode] = useState(true)
+  const [deletingMemoId, setDeletingMemoId] = useState<string | null>(null)
 
   // 書籍詳細データをAPIから取得
   useEffect(() => {
@@ -154,33 +171,59 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
     fetchRelatedBooks()
   }, [book])
 
-  // メモ一覧データ
-  const memos = [
-    {
-      id: 1,
-      title: '思考の外化について',
-      readContent: '思考を外部に書き出すことで、より客観的に自分の考えを整理できるという内容。',
-      learnedContent: '思考の外化は単なる記録ではなく、思考プロセス自体を可視化する重要な技術だと理解した。',
-      createdAt: '2024年1月15日',
-      author: '田中太郎'
-    },
-    {
-      id: 2,
-      title: '知識の体系化',
-      readContent: '知識を体系的に整理し、関連性を見つけることで新しい発想が生まれるという話。',
-      learnedContent: '知識の断片を組み合わせることで、予想もしなかった新しいアイデアが生まれることを実感した。',
-      createdAt: '2024年1月10日',
-      author: '佐藤花子'
-    },
-    {
-      id: 3,
-      title: '創造的思考のプロセス',
-      readContent: '創造的な思考には段階があり、準備期、潜伏期、啓示期、検証期があるという内容。',
-      learnedContent: '創造的なアイデアは突然降ってくるものではなく、段階的なプロセスを経て生まれることを学んだ。',
-      createdAt: '2024年1月5日',
-      author: '山田次郎'
+  // メモ一覧を取得
+  useEffect(() => {
+    const fetchMemos = async () => {
+      try {
+        const response = await fetch(`/api/memos?book_id=${params.id}&limit=3`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch memos')
+        }
+        const data = await response.json()
+        setMemos(data.memos || [])
+      } catch (err) {
+        console.error('Error fetching memos:', err)
+        setMemos([])
+      }
     }
-  ]
+
+    fetchMemos()
+  }, [params.id])
+
+  const handleDeleteMemo = async (memoId: string) => {
+    if (!confirm('このメモを削除してもよろしいですか？')) {
+      return
+    }
+
+    setDeletingMemoId(memoId)
+
+    try {
+      const response = await fetch(`/api/memos/${memoId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete memo')
+      }
+
+      // メモリストから削除
+      setMemos(memos.filter(memo => memo.id !== memoId))
+    } catch (err) {
+      console.error('Error deleting memo:', err)
+      alert('メモの削除に失敗しました')
+    } finally {
+      setDeletingMemoId(null)
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('ja-JP', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    })
+  }
 
   const totalSlides = relatedBooks.length
 
@@ -396,58 +439,96 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
 
           {/* Memo List */}
           <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">メモ一覧</h2>
-            
-            <div className="space-y-6">
-              {memos.map((memo) => (
-                <div key={memo.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
-                  <div className="mb-4">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {memo.title}
-                    </h3>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500 mb-4">
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>{memo.createdAt}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <User className="w-4 h-4" />
-                        <span>{memo.author}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="text-lg font-semibold text-gray-800 mb-2">2.1. 読んだこと</h4>
-                      <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                        <p className="text-sm text-gray-700 leading-relaxed">
-                          {memo.readContent}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="text-lg font-semibold text-gray-800 mb-2">2.2. 学んだこと・感じたこと</h4>
-                      <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                        <p className="text-sm text-gray-700 leading-relaxed">
-                          {memo.learnedContent}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-6">
-                    <Link
-                      href={`/memos/${memo.id}`}
-                      className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200"
-                    >
-                      詳細を見る
-                    </Link>
-                  </div>
-                </div>
-              ))}
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">メモ一覧</h2>
+              {user && (
+                <Link
+                  href={`/books/${params.id}/memos/new`}
+                  className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>メモを作成</span>
+                </Link>
+              )}
             </div>
+            
+            {memos.length > 0 ? (
+              <div className="space-y-6">
+                {memos.map((memo) => (
+                  <div key={memo.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <div className="flex items-center space-x-2">
+                            {memo.is_public ? (
+                              <Globe className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <Lock className="w-4 h-4 text-gray-600" />
+                            )}
+                            <span className="text-sm font-medium text-gray-600">
+                              {memo.is_public ? '公開' : '非公開'}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-1 text-sm text-gray-500">
+                            <Calendar className="w-4 h-4" />
+                            <span>{formatDate(memo.created_at)}</span>
+                          </div>
+                          {memo.user_profiles && (
+                            <div className="flex items-center space-x-1 text-sm text-gray-500">
+                              <User className="w-4 h-4" />
+                              <span>{memo.user_profiles.name || '名無しさん'}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {user && memo.user_id === user.id && (
+                        <div className="flex items-center space-x-2 ml-4">
+                          <Link
+                            href={`/books/${params.id}/memos/${memo.id}/edit`}
+                            className="p-2 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            title="編集"
+                          >
+                            <Edit2 className="w-5 h-5" />
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteMemo(memo.id)}
+                            disabled={deletingMemoId === memo.id}
+                            className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                            title="削除"
+                          >
+                            {deletingMemoId === memo.id ? (
+                              <div className="w-5 h-5 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <Trash2 className="w-5 h-5" />
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                        {memo.content}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-500 mb-4">まだメモがありません</p>
+                {user && (
+                  <Link
+                    href={`/books/${params.id}/memos/new`}
+                    className="inline-flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+                  >
+                    <Plus className="w-5 h-5" />
+                    <span>最初のメモを作成</span>
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Related Books Slider - 関連書籍が1件以上ある場合のみ表示 */}
