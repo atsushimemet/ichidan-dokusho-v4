@@ -730,9 +730,9 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
       </div>
     )}
     {chatGPTMemoId && (
-      <div className="fixed inset-x-0 top-6 z-40 flex justify-center px-4">
-        <div className="max-w-md rounded-2xl border border-primary-200 bg-white px-6 py-4 text-center shadow-lg">
-          <p className="text-sm font-medium text-gray-900">
+      <div className="fixed inset-0 z-40 flex items-center justify-center bg-gray-900/40 px-4 py-8 sm:py-0">
+        <div className="w-full max-w-lg rounded-2xl border border-primary-200 bg-white px-6 py-5 text-center shadow-2xl">
+          <p className="text-sm font-medium leading-relaxed text-gray-900 sm:text-base">
             この後ChatGPTに遷移します。遷移後メモをペーストできるのでペーストしてChatGPTに送信して下さい。作成されたアウトプットをコピーし、あなたのメモを更新して下さい。
           </p>
         </div>
