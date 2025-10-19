@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+const HOME_RESET_KEY = 'ichidan_return_path_disable_once'
+
 // 共通のメニュー設定
 const navigationItems = [
   { label: 'ホーム', href: '/' },
@@ -23,8 +25,17 @@ export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { user, isLoading, signOut } = useAuth()
 
+  const markHomeNavigation = () => {
+    try {
+      sessionStorage.setItem(HOME_RESET_KEY, '1')
+    } catch {
+      // sessionStorageが使用できない環境では何もしない
+    }
+  }
+
   const handleLogout = async () => {
     await signOut()
+    markHomeNavigation()
     router.push('/')
   }
 
@@ -33,7 +44,11 @@ export default function Navigation() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+          <Link
+            href="/"
+            onClick={markHomeNavigation}
+            className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+          >
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#2663eb' }}>
               <BookOpen className="w-6 h-6 text-white" />
             </div>
@@ -49,6 +64,11 @@ export default function Navigation() {
               <Link 
                 key={item.href}
                 href={item.href} 
+                onClick={() => {
+                  if (item.href === '/') {
+                    markHomeNavigation()
+                  }
+                }}
                 className="text-gray-600 hover:text-primary-600 font-medium transition-colors relative group"
               >
                 {item.label}
@@ -103,6 +123,11 @@ export default function Navigation() {
                 <Link 
                   key={item.href}
                   href={item.href} 
+                  onClick={() => {
+                    if (item.href === '/') {
+                      markHomeNavigation()
+                    }
+                  }}
                   className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors"
                 >
                   {item.label}
