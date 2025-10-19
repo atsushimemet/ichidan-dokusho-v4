@@ -113,7 +113,10 @@ ichidan-dokusho-v4/
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
+
+`NEXT_PUBLIC_SITE_URL` は Supabase Auth のリダイレクト先ベースURLとして使用されます。本番環境では実際のドメインに設定し、Supabaseプロジェクトの **Authentication > URL Configuration > Additional Redirect URLs** に `http://localhost:3000` と本番ドメインの両方を登録してください。
 
 ### サンプルデータの挿入
 1. `database/schema.sql`をSupabaseのSQLエディターで実行

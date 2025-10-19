@@ -14,7 +14,15 @@ export default function AuthCallbackPage() {
     const handleAuthCallback = async () => {
       try {
         const supabase = createClient()
-        const redirectTo = searchParams.get('redirectTo') || '/'
+        let redirectTo = searchParams.get('redirectTo') || '/'
+
+        if (!searchParams.get('redirectTo') && typeof window !== 'undefined') {
+          const storedRedirect = sessionStorage.getItem('post_auth_redirect')
+          if (storedRedirect) {
+            redirectTo = storedRedirect
+            sessionStorage.removeItem('post_auth_redirect')
+          }
+        }
 
         console.log('Auth callback - redirectTo:', redirectTo)
 
