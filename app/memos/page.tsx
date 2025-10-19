@@ -20,7 +20,6 @@ export default function MemoListPage() {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState<string>('')
-  const [selectedTag, setSelectedTag] = useState<string>('')
 
   useEffect(() => {
     const controller = new AbortController()
@@ -59,27 +58,8 @@ export default function MemoListPage() {
     return () => controller.abort()
   }, [])
 
-  const availableTags = useMemo(() => {
-    const tags = new Set<string>()
-    memos.forEach((memo) => {
-      memo.tags?.forEach((tag) => {
-        if (tag) {
-          tags.add(tag)
-        }
-      })
-    })
-    return Array.from(tags).sort()
-  }, [memos])
-
   const filteredMemos = useMemo(() => {
     return memos.filter((memo) => {
-      const matchesTag =
-        selectedTag === '' || (memo.tags || []).includes(selectedTag)
-
-      if (!matchesTag) {
-        return false
-      }
-
       if (searchTerm.trim() === '') {
         return true
       }
@@ -91,7 +71,7 @@ export default function MemoListPage() {
 
       return memo.content.toLowerCase().includes(keyword) || bookMatch
     })
-  }, [memos, selectedTag, searchTerm])
+  }, [memos, searchTerm])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
@@ -109,53 +89,16 @@ export default function MemoListPage() {
           </div>
 
           <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm mb-8">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  キーワードで探す
-                </label>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
-                  placeholder="書籍タイトル・著者名・メモ内容など"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  タグで絞り込む
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedTag('')}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                      selectedTag === ''
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    すべて
-                  </button>
-                  {availableTags.map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => setSelectedTag(tag)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                        selectedTag === tag
-                          ? 'bg-primary-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              キーワードで探す
+            </label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="書籍タイトル・著者名・メモ内容など"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
+            />
           </div>
 
           {error && (
