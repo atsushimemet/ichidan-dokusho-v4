@@ -5,6 +5,7 @@ export function useMemos(limit?: number) {
   const [memos, setMemos] = useState<Memo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [totalCount, setTotalCount] = useState<number>(0)
 
   useEffect(() => {
     const fetchMemos = async () => {
@@ -22,6 +23,7 @@ export function useMemos(limit?: number) {
         
         const data = await response.json()
         setMemos(data.memos)
+        setTotalCount(typeof data.count === 'number' ? data.count : 0)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
@@ -32,5 +34,5 @@ export function useMemos(limit?: number) {
     fetchMemos()
   }, [limit])
 
-  return { memos, loading, error }
+  return { memos, loading, error, totalCount }
 }
