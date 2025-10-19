@@ -87,7 +87,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 text-center">
-              学びのダッシュボード
+              みんなの学びのダッシュボード
             </h2>
             <div className="grid grid-cols-3 gap-3 md:gap-6">
               {/* メモ数 */}
