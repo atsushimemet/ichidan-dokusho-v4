@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const user_id = searchParams.get('user_id')
     const limit = searchParams.get('limit') || '10'
     const offset = searchParams.get('offset') || '0'
+    const visibility = searchParams.get('visibility')
 
     const supabase = createServerSupabaseClient()
     
@@ -31,6 +32,12 @@ export async function GET(request: NextRequest) {
       query = query.eq('user_id', user_id)
     }
 
+    if (visibility === 'public') {
+      query = query.eq('is_public', true)
+    } else if (visibility === 'private') {
+      query = query.eq('is_public', false)
+    }
+
     const { data, error } = await query
       .range(parseInt(offset), parseInt(offset) + parseInt(limit) - 1)
 
@@ -49,20 +56,38 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { book_id, user_id, content, page_number, chapter, tags } = body
+    const { book_id, content, page_number, chapter, tags, is_public } = body
+
+    if (!book_id || !content) {
+      return NextResponse.json({ error: 'book_id and content are required' }, { status: 400 })
+    }
 
     const supabase = createServerSupabaseClient()
+
+    const {
+      data: { user },
+      error: authError
+    } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const ownerId = user.id
     
+    const publishFlag = typeof is_public === 'boolean' ? is_public : false
+
     const { data, error } = await supabase
       .from('memos')
       .insert([
         {
           book_id,
-          user_id,
+          user_id: ownerId,
           content,
           page_number,
           chapter,
-          tags
+          tags,
+          is_public: publishFlag
         }
       ])
       .select(`

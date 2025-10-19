@@ -2,6 +2,7 @@
 
 import Navigation from '@/components/Navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { getSiteUrl } from '@/lib/url'
 import { createClient } from '@/lib/supabase'
 import { ArrowLeft, Mail, Send } from 'lucide-react'
 import Link from 'next/link'
@@ -34,11 +35,18 @@ export default function LoginPage() {
 
     try {
       const supabase = createClient()
+      if (typeof window !== 'undefined') {
+        try {
+          sessionStorage.setItem('post_auth_redirect', redirectTo)
+        } catch {
+          // no-op: セッションストレージが利用できない環境
+        }
+      }
       
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`,
+          emailRedirectTo: `${getSiteUrl()}/auth/callback`,
           shouldCreateUser: true // ユーザーが存在しない場合は自動作成
         }
       })

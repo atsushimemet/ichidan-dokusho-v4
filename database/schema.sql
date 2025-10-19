@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS memos (
   book_id UUID REFERENCES books(id) ON DELETE CASCADE,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
+  is_public BOOLEAN DEFAULT false,
   page_number INTEGER,
   chapter TEXT,
   tags TEXT[],
@@ -150,6 +151,7 @@ CREATE POLICY "Bookstores are deletable by authenticated users" ON bookstores FO
 
 -- Memos: Users can only see their own memos
 CREATE POLICY "Memos are viewable by owner" ON memos FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Memos are viewable when public" ON memos FOR SELECT USING (is_public = true);
 CREATE POLICY "Memos are insertable by authenticated users" ON memos FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Memos are updatable by owner" ON memos FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Memos are deletable by owner" ON memos FOR DELETE USING (auth.uid() = user_id);

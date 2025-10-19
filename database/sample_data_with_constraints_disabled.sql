@@ -36,21 +36,23 @@ INSERT INTO bookstores (name, address, description, tags, latitude, longitude) V
 ('有隣堂 横浜店', '神奈川県横浜市西区南幸1-5-1', '横浜の老舗書店。地域に根ざした書店として、地元の人々に愛され続けています。', ARRAY['地域密着', '老舗', '横浜'], 35.4658, 139.6204);
 
 -- Insert sample memos (プレースホルダーのユーザーIDを使用)
-INSERT INTO memos (book_id, user_id, content, page_number, chapter, tags) 
+INSERT INTO memos (book_id, user_id, content, is_public, page_number, chapter, tags) 
 SELECT 
   b.id,
   '00000000-0000-0000-0000-000000000001'::uuid, -- Placeholder user ID
   '思考の外化について学んだ。思考を紙に書き出すことで、より明確になり、新しいアイデアが生まれやすくなる。',
+  true,
   45,
   '第3章 思考の外化',
   ARRAY['思考法', '外化', 'アイデア']
 FROM books b WHERE b.title = '思考の整理学';
 
-INSERT INTO memos (book_id, user_id, content, page_number, chapter, tags) 
+INSERT INTO memos (book_id, user_id, content, is_public, page_number, chapter, tags) 
 SELECT 
   b.id,
   '00000000-0000-0000-0000-000000000001'::uuid,
   '2週間に3回のアウトプットの法則が印象的だった。学習した内容を確実に定着させるには、定期的なアウトプットが重要。',
+  false,
   78,
   '第4章 アウトプットの法則',
   ARRAY['アウトプット', '定着', '学習']
