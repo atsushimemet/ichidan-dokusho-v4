@@ -222,8 +222,6 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
       content
     ].join('\n')
 
-    const newWindow = window.open('', '_blank', 'noopener,noreferrer')
-
     chatGPTTimerRef.current = setTimeout(async () => {
       try {
         if (navigator.clipboard?.writeText) {
@@ -245,11 +243,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
       } finally {
         chatGPTTimerRef.current = null
         setChatGPTMemoId(null)
-        if (newWindow) {
-          newWindow.location.replace('https://chatgpt.com/')
-        } else {
-          window.open('https://chatgpt.com/', '_blank', 'noopener,noreferrer')
-        }
+        window.open('https://chatgpt.com/', '_blank', 'noopener,noreferrer')
       }
     }, 3000)
   }
