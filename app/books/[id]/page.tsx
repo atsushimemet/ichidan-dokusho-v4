@@ -3,10 +3,10 @@
 import Navigation from '@/components/Navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useBookMemos } from '@/hooks/useBookMemos'
-import { BookOpen, Calendar, ChevronRight, ExternalLink, Loader2, PencilLine, PlusCircle, Sparkles, Trash2, User } from 'lucide-react'
+import { BookOpen, Calendar, ChevronRight, ClipboardCheck, ExternalLink, Loader2, PencilLine, PlusCircle, Sparkles, Trash2, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // Amazon画像URL生成関数
 function generateAmazonImageUrl(asin: string, size: 'large' | 'medium' | 'small' = 'small'): string {
@@ -108,7 +108,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
   const [confirmingMemoId, setConfirmingMemoId] = useState<string | null>(null)
   const [chatGPTMemoId, setChatGPTMemoId] = useState<string | null>(null)
   const [chatGPTError, setChatGPTError] = useState<string | null>(null)
-  const chatGPTTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const [isCopyingMemoId, setIsCopyingMemoId] = useState<string | null>(null)
 
   // 書籍詳細データをAPIから取得
   useEffect(() => {
@@ -210,10 +210,6 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
 
   const handleChatGPTExport = (memoId: string, content: string) => {
     setChatGPTError(null)
-    if (chatGPTTimerRef.current) {
-      clearTimeout(chatGPTTimerRef.current)
-      chatGPTTimerRef.current = null
-    }
     setChatGPTMemoId(memoId)
 
     try {
@@ -222,6 +218,11 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
     } catch {
       // sessionStorageが利用できない場合は無視
     }
+  }
+
+  const handleChatGPTCopy = async (memoId: string, content: string) => {
+    setIsCopyingMemoId(memoId)
+    setChatGPTError(null)
 
     const formattedContent = [
       '# メタプロンプト 以下のメモから要点を抽出、メモを整理して500文字以内のテキストで整理されたメモを出力して下さい。箇条書きは禁止し、段落形式で記述して下さい。',
@@ -229,39 +230,34 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
       content
     ].join('\n')
 
-    chatGPTTimerRef.current = setTimeout(async () => {
-      try {
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(formattedContent)
-        } else {
-          const textarea = document.createElement('textarea')
-          textarea.value = formattedContent
-          textarea.style.position = 'fixed'
-          textarea.style.left = '-9999px'
-          document.body.appendChild(textarea)
-          textarea.focus()
-          textarea.select()
-          document.execCommand('copy')
-          document.body.removeChild(textarea)
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(formattedContent)
+      } else {
+        const textarea = document.createElement('textarea')
+        textarea.value = formattedContent
+        textarea.style.position = 'fixed'
+        textarea.style.top = '0'
+        textarea.style.left = '-9999px'
+        textarea.setAttribute('readonly', '')
+        document.body.appendChild(textarea)
+        textarea.select()
+        const successful = document.execCommand('copy')
+        document.body.removeChild(textarea)
+        if (!successful) {
+          throw new Error('execCommand copy failed')
         }
-      } catch (err) {
-        console.error('Failed to copy memo content:', err)
-        setChatGPTError('メモのコピーに失敗しました。手動でコピーしてください。')
-      } finally {
-        chatGPTTimerRef.current = null
-        setChatGPTMemoId(null)
-        window.open('https://chatgpt.com/', '_blank', 'noopener,noreferrer')
       }
-    }, 3000)
-  }
 
-  useEffect(() => {
-    return () => {
-      if (chatGPTTimerRef.current) {
-        clearTimeout(chatGPTTimerRef.current)
-      }
+      setChatGPTMemoId(null)
+      window.open('https://chatgpt.com/', '_blank', 'noopener,noreferrer')
+    } catch (err) {
+      console.error('Failed to copy memo content:', err)
+      setChatGPTError('クリップボードへのコピーに失敗しました。手動でコピーしてください。')
+    } finally {
+      setIsCopyingMemoId(null)
     }
-  }, [])
+  }
 
   const nextSlide = () => {
     if (totalSlides === 0) return
@@ -744,9 +740,35 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
     )}
     {chatGPTMemoId && (
       <div className="fixed inset-0 z-40 flex items-center justify-center bg-gray-900/40 px-4 py-8 sm:py-0">
-        <div className="w-full max-w-lg rounded-2xl border border-primary-200 bg-white px-6 py-5 text-center shadow-2xl">
+        <div className="w-full max-w-lg space-y-4 rounded-2xl border border-primary-200 bg-white px-6 py-6 text-center shadow-2xl">
           <p className="text-sm font-medium leading-relaxed text-gray-900 sm:text-base">
-            この後ChatGPTに遷移します。遷移後メモをペーストできるのでペーストしてChatGPTに送信して下さい。作成されたアウトプットをコピーし、あなたのメモを更新して下さい。
+            ChatGPT に遷移する前にプロンプトをコピーしてください。コピー完了後、自動的にChatGPTを新しいタブで開きます。
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              const targetMemo = memos.find((memo) => memo.id === chatGPTMemoId)
+              if (targetMemo) {
+                void handleChatGPTCopy(targetMemo.id, targetMemo.content)
+              }
+            }}
+            disabled={isCopyingMemoId === chatGPTMemoId}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isCopyingMemoId === chatGPTMemoId ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                コピー中...
+              </>
+            ) : (
+              <>
+                <ClipboardCheck className="h-4 w-4" />
+                プロンプトをコピーする
+              </>
+            )}
+          </button>
+          <p className="text-xs text-gray-500">
+            コピーできない場合は手動でコピーしてからChatGPTをご利用ください。
           </p>
         </div>
       </div>
