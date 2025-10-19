@@ -18,13 +18,15 @@ export function RouteRestorer() {
       const stored = sessionStorage.getItem(STORAGE_KEY)
       const currentFullPath = `${window.location.pathname}${window.location.search}${window.location.hash}`
 
-      if ((pathname === '/' || pathname === '') && stored && stored !== '/' && stored !== currentFullPath) {
+      const isAuthCallback = pathname.startsWith('/auth/callback')
+
+      if (!isAuthCallback && (pathname === '/' || pathname === '') && stored && stored !== '/' && stored !== currentFullPath) {
         sessionStorage.removeItem(STORAGE_KEY)
         router.replace(stored)
         return
       }
 
-      if (pathname !== '/') {
+      if (!isAuthCallback && pathname !== '/') {
         sessionStorage.setItem(STORAGE_KEY, currentFullPath)
       }
     } catch {
