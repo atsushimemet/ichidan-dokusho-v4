@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
+import { RouteRestorer } from '@/components/RouteRestorer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -31,6 +32,7 @@ export default function RootLayout({
           `}
         </Script>
         <div className="min-h-screen bg-gray-50">
+          <RouteRestorer />
           {children}
         </div>
       </body>
