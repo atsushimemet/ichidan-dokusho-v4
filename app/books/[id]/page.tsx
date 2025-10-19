@@ -216,6 +216,13 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
     }
     setChatGPTMemoId(memoId)
 
+    try {
+      const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`
+      sessionStorage.setItem('ichidan_return_path', currentPath)
+    } catch {
+      // sessionStorageが利用できない場合は無視
+    }
+
     const formattedContent = [
       '# メタプロンプト 以下のメモから要点を抽出、メモを整理して500文字以内のテキストで整理されたメモを出力して下さい。箇条書きは禁止し、段落形式で記述して下さい。',
       '# メモ',
