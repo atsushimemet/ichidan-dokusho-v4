@@ -217,7 +217,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
     setChatGPTMemoId(memoId)
 
     const formattedContent = [
-      '# メタプロンプト 以下のメモから要点を抽出、メモを整理して500文字以内のテキストで整理されたメモを出力して下さい。',
+      '# メタプロンプト 以下のメモから要点を抽出、メモを整理して500文字以内のテキストで整理されたメモを出力して下さい。箇条書きは禁止し、段落形式で記述して下さい。',
       '# メモ',
       content
     ].join('\n')
