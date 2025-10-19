@@ -174,11 +174,15 @@ export default function MemoListPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredMemos.map((memo) => (
-                <div
-                  key={memo.id}
-                  className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-6 shadow-lg transition-shadow hover:shadow-xl"
-                >
+              {filteredMemos.map((memo) => {
+                const bookDetailId = memo.books?.id ?? memo.book_id
+                const bookDetailHref = bookDetailId ? `/books/${bookDetailId}` : null
+
+                return (
+                  <div
+                    key={memo.id}
+                    className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-6 shadow-lg transition-shadow hover:shadow-xl"
+                  >
                   <div className="mb-4 flex items-start gap-3">
                     <div className="flex h-16 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary-100 to-primary-200">
                       <BookOpen className="h-6 w-6 text-primary-600" />
@@ -225,15 +229,26 @@ export default function MemoListPage() {
                       </span>
                     </div>
 
-                    <Link
-                      href={`/memos/${memo.id}`}
-                      className="inline-flex w-full items-center justify-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
-                    >
-                      詳細を見る
-                    </Link>
+                    {bookDetailHref ? (
+                      <Link
+                        href={bookDetailHref}
+                        className="inline-flex w-full items-center justify-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+                      >
+                        書籍詳細を見る
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled
+                        className="inline-flex w-full items-center justify-center rounded-xl bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-500"
+                      >
+                        書籍情報なし
+                      </button>
+                    )}
                   </div>
-                </div>
-              ))}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>
