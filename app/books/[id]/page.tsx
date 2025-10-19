@@ -216,13 +216,19 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
     }
     setChatGPTMemoId(memoId)
 
+    const formattedContent = [
+      '# メタプロンプト 以下のメモから要点を抽出、メモを整理して500文字以内のテキストで整理されたメモを出力して下さい。',
+      '# メモ',
+      content
+    ].join('\n')
+
     chatGPTTimerRef.current = setTimeout(async () => {
       try {
         if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(content)
+          await navigator.clipboard.writeText(formattedContent)
         } else {
           const textarea = document.createElement('textarea')
-          textarea.value = content
+          textarea.value = formattedContent
           textarea.style.position = 'fixed'
           textarea.style.left = '-9999px'
           document.body.appendChild(textarea)
