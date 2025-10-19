@@ -3,10 +3,10 @@
 import Navigation from '@/components/Navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useBookMemos } from '@/hooks/useBookMemos'
-import { BookOpen, Calendar, ChevronRight, ExternalLink, Loader2, PencilLine, PlusCircle, Trash2, User } from 'lucide-react'
+import { BookOpen, Calendar, ChevronRight, ExternalLink, Loader2, PencilLine, PlusCircle, Sparkles, Trash2, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // Amazon画像URL生成関数
 function generateAmazonImageUrl(asin: string, size: 'large' | 'medium' | 'small' = 'small'): string {
@@ -106,6 +106,9 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [deletingMemoId, setDeletingMemoId] = useState<string | null>(null)
   const [confirmingMemoId, setConfirmingMemoId] = useState<string | null>(null)
+  const [chatGPTMemoId, setChatGPTMemoId] = useState<string | null>(null)
+  const [chatGPTError, setChatGPTError] = useState<string | null>(null)
+  const chatGPTTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   // 書籍詳細データをAPIから取得
   useEffect(() => {
@@ -204,6 +207,48 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
       setDeletingMemoId(null)
     }
   }
+
+  const handleChatGPTExport = (memoId: string, content: string) => {
+    setChatGPTError(null)
+    if (chatGPTTimerRef.current) {
+      clearTimeout(chatGPTTimerRef.current)
+      chatGPTTimerRef.current = null
+    }
+    setChatGPTMemoId(memoId)
+
+    chatGPTTimerRef.current = setTimeout(async () => {
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(content)
+        } else {
+          const textarea = document.createElement('textarea')
+          textarea.value = content
+          textarea.style.position = 'fixed'
+          textarea.style.left = '-9999px'
+          document.body.appendChild(textarea)
+          textarea.focus()
+          textarea.select()
+          document.execCommand('copy')
+          document.body.removeChild(textarea)
+        }
+      } catch (err) {
+        console.error('Failed to copy memo content:', err)
+        setChatGPTError('メモのコピーに失敗しました。手動でコピーしてください。')
+      } finally {
+        chatGPTTimerRef.current = null
+        setChatGPTMemoId(null)
+        window.open('https://chatgpt.com/', '_blank', 'noopener,noreferrer')
+      }
+    }, 3000)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (chatGPTTimerRef.current) {
+        clearTimeout(chatGPTTimerRef.current)
+      }
+    }
+  }, [])
 
   const nextSlide = () => {
     if (totalSlides === 0) return
@@ -441,6 +486,10 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
               <p className="mb-4 text-sm text-red-600">{deleteError}</p>
             )}
 
+            {chatGPTError && (
+              <p className="mb-4 text-sm text-red-600">{chatGPTError}</p>
+            )}
+
             {memosError && (
               <p className="mb-4 text-sm text-red-600">メモの取得に失敗しました。</p>
             )}
@@ -499,6 +548,13 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
                               aria-label="メモを編集する"
                             >
                               <PencilLine className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleChatGPTExport(memo.id, memo.content)}
+                              className="rounded-lg border border-gray-200 p-2 text-gray-600 transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+                              aria-label="ChatGPTでメモを整形する"
+                            >
+                              <Sparkles className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => requestDeleteMemo(memo.id)}
@@ -670,6 +726,15 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
               )}
             </button>
           </div>
+        </div>
+      </div>
+    )}
+    {chatGPTMemoId && (
+      <div className="fixed inset-x-0 top-6 z-40 flex justify-center px-4">
+        <div className="max-w-md rounded-2xl border border-primary-200 bg-white px-6 py-4 text-center shadow-lg">
+          <p className="text-sm font-medium text-gray-900">
+            この後ChatGPTに遷移します。遷移後メモをペーストできるのでペーストしてChatGPTに送信して下さい。作成されたアウトプットをコピーし、あなたのメモを更新して下さい。
+          </p>
         </div>
       </div>
     )}
