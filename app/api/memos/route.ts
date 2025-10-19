@@ -14,14 +14,17 @@ export async function GET(request: NextRequest) {
     
     let query = supabase
       .from('memos')
-      .select(`
+      .select(
+        `
         *,
         books (
           id,
           title,
           author
         )
-      `)
+      `,
+        { count: 'exact' }
+      )
       .order('created_at', { ascending: false })
 
     if (book_id) {
@@ -38,7 +41,7 @@ export async function GET(request: NextRequest) {
       query = query.eq('is_public', false)
     }
 
-    const { data, error } = await query
+    const { data, error, count } = await query
       .range(parseInt(offset), parseInt(offset) + parseInt(limit) - 1)
 
     if (error) {
@@ -46,7 +49,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch memos' }, { status: 500 })
     }
 
-    return NextResponse.json({ memos: data })
+    return NextResponse.json({ memos: data, count })
   } catch (error) {
     console.error('Unexpected error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

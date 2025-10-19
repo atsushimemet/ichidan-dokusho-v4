@@ -26,7 +26,7 @@ export default function Home() {
   // データ取得
   const { books: recommendedBooks, loading: booksLoading } = useBooks(10)
   const { stores, loading: storesLoading } = useStores(10)
-  const { memos, loading: memosLoading } = useMemos(2)
+  const { memos, loading: memosLoading, totalCount: memoTotalCount } = useMemos(2)
 
   const booksPerSlide = 1
   const totalSlides = recommendedBooks.length
@@ -96,7 +96,9 @@ export default function Home() {
                   <div className="w-8 h-8 md:w-12 md:h-12 bg-blue-100 rounded-lg md:rounded-xl flex items-center justify-center mb-2 md:mb-4">
                     <FileText className="w-4 h-4 md:w-6 md:h-6 text-blue-600" />
                   </div>
-                  <div className="text-lg md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">24</div>
+                  <div className="text-lg md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">
+                    {memosLoading ? '-' : memoTotalCount}
+                  </div>
                   <div className="text-xs md:text-base text-gray-600 font-medium">メモ数</div>
                 </div>
               </div>
@@ -107,7 +109,7 @@ export default function Home() {
                   <div className="w-8 h-8 md:w-12 md:h-12 bg-green-100 rounded-lg md:rounded-xl flex items-center justify-center mb-2 md:mb-4">
                     <HelpCircle className="w-4 h-4 md:w-6 md:h-6 text-green-600" />
                   </div>
-                  <div className="text-lg md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">18</div>
+                  <div className="text-lg md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">0</div>
                   <div className="text-xs md:text-base text-gray-600 font-medium">クイズ数</div>
                 </div>
               </div>
@@ -118,7 +120,7 @@ export default function Home() {
                   <div className="w-8 h-8 md:w-12 md:h-12 bg-purple-100 rounded-lg md:rounded-xl flex items-center justify-center mb-2 md:mb-4">
                     <BarChart3 className="w-4 h-4 md:w-6 md:h-6 text-purple-600" />
                   </div>
-                  <div className="text-lg md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">85%</div>
+                  <div className="text-lg md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">0%</div>
                   <div className="text-xs md:text-base text-gray-600 font-medium">正答率</div>
             </div>
               </div>
