@@ -1,7 +1,7 @@
 'use client'
 
 import Navigation from '@/components/Navigation'
-import { useAuth } from '@/hooks/useAuth'
+import { useClerkAuth } from '@/hooks/useClerkAuth'
 import { Book } from '@/types/database'
 import { Loader2, Lock, Unlock, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -16,7 +16,7 @@ type SubmitVariant = 'public' | 'private' | null
 
 export default function MemoCreatePage({ params }: MemoCreatePageProps) {
   const router = useRouter()
-  const { user, isLoading: authLoading } = useAuth()
+  const { user, clerkUser, isAuthenticated, isLoading: authLoading } = useClerkAuth()
   const [book, setBook] = useState<Book | null>(null)
   const [bookLoading, setBookLoading] = useState(true)
   const [bookError, setBookError] = useState<string | null>(null)
@@ -24,7 +24,7 @@ export default function MemoCreatePage({ params }: MemoCreatePageProps) {
   const [submitState, setSubmitState] = useState<SubmitVariant>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  const isRedirecting = useMemo(() => !authLoading && !user, [authLoading, user])
+  const isRedirecting = useMemo(() => !authLoading && !isAuthenticated, [authLoading, isAuthenticated])
 
   useEffect(() => {
     if (isRedirecting) {
@@ -119,7 +119,7 @@ export default function MemoCreatePage({ params }: MemoCreatePageProps) {
     )
   }
 
-  if (!user) {
+  if (!isAuthenticated) {
     return null
   }
 

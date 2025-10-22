@@ -1,7 +1,7 @@
 'use client'
 
 import Navigation from '@/components/Navigation'
-import { useAuth } from '@/hooks/useAuth'
+import { useClerkAuth } from '@/hooks/useClerkAuth'
 import { useBookMemos } from '@/hooks/useBookMemos'
 import { BookOpen, Calendar, ChevronRight, ClipboardCheck, ExternalLink, Loader2, PencilLine, PlusCircle, Sparkles, Trash2, User } from 'lucide-react'
 import Link from 'next/link'
@@ -96,7 +96,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isAffiliateMode, setIsAffiliateMode] = useState(true)
-  const { user, isLoading: authLoading } = useAuth()
+  const { user, clerkUser, isAuthenticated, isLoading: authLoading } = useClerkAuth()
   const {
     memos,
     loading: memosLoading,
@@ -474,7 +474,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
           <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 mb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900">メモ一覧</h2>
-              {user ? (
+              {isAuthenticated ? (
                 <button
                   onClick={handleCreateMemo}
                   className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
@@ -514,7 +514,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
             ) : (
               <div className="space-y-6">
                 {memos.map((memo) => {
-                  const isOwner = user?.id === memo.user_id
+                  const isOwner = (user?.id || clerkUser?.id) === memo.user_id
                   const createdAt = memo.created_at
                     ? new Date(memo.created_at).toLocaleDateString('ja-JP')
                     : ''
