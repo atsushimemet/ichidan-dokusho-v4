@@ -1,6 +1,6 @@
 import { clerkMiddleware } from '@clerk/nextjs/server'
 import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 
 export default clerkMiddleware(async (auth, request) => {
   // Clerk認証チェック

@@ -2,6 +2,7 @@
 
 import { BookOpen, Save, Brain } from 'lucide-react'
 import { useState } from 'react'
+import { useClerkAuth } from '@/hooks/useClerkAuth'
 
 interface MemoData {
   bookId: string
@@ -12,6 +13,7 @@ interface MemoData {
 }
 
 export default function MemoForm() {
+  const { user, clerkUser, isAuthenticated, isLoading } = useClerkAuth()
   const [memo, setMemo] = useState<MemoData>({
     bookId: '',
     title: '',
@@ -23,10 +25,17 @@ export default function MemoForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!isAuthenticated) {
+      alert('メモを保存するにはログインが必要です。')
+      return
+    }
+    
     setIsSubmitting(true)
     
     // ここで実際のAPI呼び出しを行う
     console.log('Memo submitted:', memo)
+    console.log('User:', user || clerkUser)
     
     // シミュレーション用の遅延
     await new Promise(resolve => setTimeout(resolve, 2000))
@@ -39,11 +48,41 @@ export default function MemoForm() {
     setMemo(prev => ({ ...prev, [field]: value }))
   }
 
+  // 認証状態のローディング中
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <div className="w-8 h-8 animate-spin rounded-full border-2 border-gray-300 border-t-primary-600"></div>
+      </div>
+    )
+  }
+
+  // 未認証の場合
+  if (!isAuthenticated) {
+    return (
+      <div className="text-center py-8">
+        <div className="flex items-center justify-center space-x-3 mb-4">
+          <Brain className="w-6 h-6 text-primary-600" />
+          <h2 className="text-2xl font-bold text-gray-900">読書メモ作成</h2>
+        </div>
+        <p className="text-gray-600 mb-6">メモを作成するにはログインが必要です。</p>
+        <div className="flex justify-center space-x-4">
+          <a href="/login" className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-6 rounded-xl transition-colors">
+            ログイン
+          </a>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div>
       <div className="flex items-center space-x-3 mb-6">
         <Brain className="w-6 h-6 text-primary-600" />
         <h2 className="text-2xl font-bold text-gray-900">読書メモ作成</h2>
+        <span className="text-sm text-gray-500">
+          ({clerkUser?.emailAddresses?.[0]?.emailAddress || (user as any)?.email})
+        </span>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

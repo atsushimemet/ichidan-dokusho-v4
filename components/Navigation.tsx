@@ -1,10 +1,11 @@
 'use client'
 
-import { useAuth } from '@/hooks/useAuth'
+import { useClerkAuth } from '@/hooks/useClerkAuth'
 import { BookOpen, LogOut, Menu, User, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
 
 const HOME_RESET_KEY = 'ichidan_return_path_disable_once'
 
@@ -23,7 +24,7 @@ const adminItems = [
 export default function Navigation() {
   const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { user, isLoading, signOut } = useAuth()
+  const { user, isLoading, signOut, clerkUser } = useClerkAuth()
 
   const markHomeNavigation = () => {
     try {
@@ -78,28 +79,28 @@ export default function Navigation() {
             
             {isLoading ? (
               <div className="w-8 h-8 animate-spin rounded-full border-2 border-gray-300 border-t-primary-600"></div>
-            ) : user ? (
+            ) : (user || clerkUser) ? (
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 text-gray-600">
                   <User className="w-5 h-5" />
-                  <span className="font-medium">{user.email}</span>
+                  <span className="font-medium">
+                    {clerkUser?.emailAddresses?.[0]?.emailAddress || (user as any)?.email}
+                  </span>
                 </div>
-                <button 
-                  onClick={handleLogout}
-                  className="flex items-center space-x-2 text-gray-500 hover:text-gray-700 transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>ログアウト</span>
-                </button>
+                <UserButton />
               </div>
             ) : (
               <div className="flex items-center space-x-3">
-                <Link href="/login" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                  ログイン
-                </Link>
-                <Link href="/login" className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl">
-                  無料で始める
-                </Link>
+                <SignInButton mode="modal">
+                  <button className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                    ログイン
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl">
+                    無料で始める
+                  </button>
+                </SignUpButton>
               </div>
             )}
           </div>
@@ -151,28 +152,30 @@ export default function Navigation() {
                   <div className="flex justify-center py-4">
                     <div className="w-6 h-6 animate-spin rounded-full border-2 border-gray-300 border-t-primary-600"></div>
                   </div>
-                ) : user ? (
+                ) : (user || clerkUser) ? (
                   <div className="space-y-3">
                     <div className="flex items-center space-x-2 text-gray-600 py-2">
                       <User className="w-5 h-5" />
-                      <span className="font-medium">{user.email}</span>
+                      <span className="font-medium">
+                        {clerkUser?.emailAddresses?.[0]?.emailAddress || (user as any)?.email}
+                      </span>
                     </div>
-                    <button 
-                      onClick={handleLogout}
-                      className="flex items-center space-x-2 text-gray-500 hover:text-gray-700 transition-colors py-2"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>ログアウト</span>
-                    </button>
+                    <div className="flex justify-center">
+                      <UserButton />
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <Link href="/login" className="block w-full text-gray-600 hover:text-gray-900 font-medium py-3 transition-colors text-center">
-                      ログイン
-                    </Link>
-                    <Link href="/login" className="block w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg text-center">
-                      無料で始める
-                    </Link>
+                    <SignInButton mode="modal">
+                      <button className="block w-full text-gray-600 hover:text-gray-900 font-medium py-3 transition-colors text-center">
+                        ログイン
+                      </button>
+                    </SignInButton>
+                    <SignUpButton mode="modal">
+                      <button className="block w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg text-center">
+                        無料で始める
+                      </button>
+                    </SignUpButton>
                   </div>
                 )}
               </div>
