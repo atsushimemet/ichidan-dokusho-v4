@@ -1,7 +1,11 @@
+import { clerkMiddleware } from '@clerk/nextjs/server'
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export default clerkMiddleware(async (auth, request) => {
+  // Clerk認証チェック
+  const { userId } = await auth()
+  
   let supabaseResponse = NextResponse.next({
     request,
   })
@@ -37,7 +41,7 @@ export async function middleware(request: NextRequest) {
 
   // 認証が必要なページへのアクセスをチェック
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (!user) {
+    if (!userId && !user) {
       // 未認証の場合はログインページにリダイレクト
       const redirectUrl = new URL('/login', request.url)
       redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
@@ -46,7 +50,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 認証済みユーザーがログインページにアクセスした場合、リダイレクト
-  if (request.nextUrl.pathname === '/login' && user) {
+  if (request.nextUrl.pathname === '/login' && (userId || user)) {
     const redirectTo = request.nextUrl.searchParams.get('redirectTo')
     if (redirectTo) {
       return NextResponse.redirect(new URL(redirectTo, request.url))
@@ -63,17 +67,13 @@ export async function middleware(request: NextRequest) {
   // 3. Change the myNewResponse object instead of the supabaseResponse object
 
   return supabaseResponse
-}
+})
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
   ],
 }

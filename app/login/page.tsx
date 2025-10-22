@@ -1,13 +1,14 @@
 'use client'
 
 import Navigation from '@/components/Navigation'
-import { useAuth } from '@/hooks/useAuth'
+import { useClerkAuth } from '@/hooks/useClerkAuth'
 import { getSiteUrl } from '@/lib/url'
 import { createClient } from '@/lib/supabase'
 import { ArrowLeft, Mail, Send } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { SignInButton, SignUpButton } from '@clerk/nextjs'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -16,7 +17,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  const { user } = useAuth()
+  const { user } = useClerkAuth()
 
   const redirectTo = searchParams.get('redirectTo') || '/'
 
@@ -95,8 +96,32 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Form */}
+          {/* Clerk Authentication Options */}
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 mb-6">
+            <div className="text-center mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">クイックログイン</h2>
+              <p className="text-sm text-gray-600">Clerk認証を使用して簡単にログイン</p>
+            </div>
+            <div className="flex flex-col space-y-3">
+              <SignInButton mode="modal">
+                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
+                  Clerkでログイン
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
+                  Clerkで新規登録
+                </button>
+              </SignUpButton>
+            </div>
+          </div>
+
+          {/* Supabase Authentication Form */}
           <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+            <div className="text-center mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">メール認証</h2>
+              <p className="text-sm text-gray-600">従来のSupabase認証を使用</p>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email Field */}
               <div>
