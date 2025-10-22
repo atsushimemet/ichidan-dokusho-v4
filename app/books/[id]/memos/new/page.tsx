@@ -96,15 +96,19 @@ export default function MemoCreatePage({ params }: MemoCreatePageProps) {
 
       if (!response.ok) {
         let errorMessage = 'メモの登録に失敗しました'
+        let errorDetails = ''
         try {
           const data = await response.json()
           console.log('Error response data:', data)
           errorMessage = data.error || errorMessage
+          errorDetails = data.details || ''
         } catch (parseError) {
           console.error('Failed to parse error response:', parseError)
           errorMessage = `HTTP ${response.status}: ${response.statusText}`
         }
-        throw new Error(errorMessage)
+        
+        const fullErrorMessage = errorDetails ? `${errorMessage} (${errorDetails})` : errorMessage
+        throw new Error(fullErrorMessage)
       }
 
       const result = await response.json()

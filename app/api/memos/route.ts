@@ -70,13 +70,26 @@ export async function POST(request: NextRequest) {
 
     // Clerk認証を使用
     console.log('Checking Clerk authentication...')
-    const user = await requireClerkAuth(request)
-    console.log('Clerk user authenticated:', user.id)
+    let user
+    try {
+      user = await requireClerkAuth(request)
+      console.log('Clerk user authenticated:', user.id)
+    } catch (authError) {
+      console.error('Clerk authentication failed:', authError)
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    }
     const ownerId = user.id
 
     const supabase = createServerSupabaseClient()
     
     const publishFlag = typeof is_public === 'boolean' ? is_public : false
+
+    console.log('Inserting memo with data:', {
+      book_id,
+      user_id: ownerId,
+      content: content.substring(0, 100) + '...',
+      is_public: publishFlag
+    })
 
     const { data, error } = await supabase
       .from('memos')
@@ -103,7 +116,16 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Error creating memo:', error)
-      return NextResponse.json({ error: 'Failed to create memo' }, { status: 500 })
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
+      return NextResponse.json({ 
+        error: 'Failed to create memo',
+        details: error.message 
+      }, { status: 500 })
     }
 
     console.log('Memo created successfully:', data)
