@@ -78,7 +78,10 @@ export default function Navigation() {
             ))}
             
             {isLoading ? (
-              <div className="w-8 h-8 animate-spin rounded-full border-2 border-gray-300 border-t-primary-600"></div>
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 animate-spin rounded-full border-2 border-gray-300 border-t-primary-600"></div>
+                <span className="text-sm text-gray-500">読み込み中...</span>
+              </div>
             ) : (user || clerkUser) ? (
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 text-gray-600">
@@ -149,8 +152,9 @@ export default function Navigation() {
               
               <div className="pt-4 border-t border-gray-100">
                 {isLoading ? (
-                  <div className="flex justify-center py-4">
+                  <div className="flex flex-col items-center py-4 space-y-2">
                     <div className="w-6 h-6 animate-spin rounded-full border-2 border-gray-300 border-t-primary-600"></div>
+                    <span className="text-sm text-gray-500">読み込み中...</span>
                   </div>
                 ) : (user || clerkUser) ? (
                   <div className="space-y-3">

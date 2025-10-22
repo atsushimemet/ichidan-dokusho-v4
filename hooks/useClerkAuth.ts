@@ -1,9 +1,16 @@
 'use client'
 
-import { useUser, useAuth as useClerkAuthHook } from '@clerk/nextjs'
-import { User as SupabaseUser } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase'
+import { useAuth as useClerkAuthHook, useUser } from '@clerk/nextjs'
+import { User as SupabaseUser } from '@supabase/supabase-js'
 import { useEffect, useState } from 'react'
+
+// Clerk環境変数のチェック
+const isClerkConfigured = () => {
+  if (typeof window === 'undefined') return false
+  return !!(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && 
+           process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY !== 'pk_test_placeholder')
+}
 
 const STORAGE_KEY = 'ichidan_user'
 
@@ -18,8 +25,8 @@ export function useClerkAuth() {
 
     // Clerk認証がある場合、Supabaseユーザーも同期
     const syncUsers = async () => {
-      if (clerkUser && clerkLoaded) {
-        try {
+      try {
+        if (clerkUser && clerkLoaded) {
           // Clerkユーザー情報をSupabaseに同期
           const { data: { user }, error } = await supabase.auth.getUser()
           
@@ -30,14 +37,25 @@ export function useClerkAuth() {
           } else {
             setSupabaseUser(user)
           }
-        } catch (error) {
-          console.error('Error syncing users:', error)
+        } else if (!clerkUser && clerkLoaded) {
+          setSupabaseUser(null)
         }
-      } else if (!clerkUser && clerkLoaded) {
-        setSupabaseUser(null)
+      } catch (error) {
+        console.error('Error syncing users:', error)
+      } finally {
+        // 必ずローディング状態を終了
+        setIsLoading(false)
       }
-      
-      setIsLoading(false)
+    }
+
+    // Clerkが読み込まれていない場合は、タイムアウトを設定
+    if (!clerkLoaded) {
+      const timeout = setTimeout(() => {
+        console.log('Clerk loading timeout, setting loading to false')
+        setIsLoading(false)
+      }, 5000) // 5秒でタイムアウト
+
+      return () => clearTimeout(timeout)
     }
 
     syncUsers()
@@ -72,7 +90,7 @@ export function useClerkAuth() {
 
   return {
     user: clerkUser || supabaseUser,
-    isLoading: !clerkLoaded || isLoading,
+    isLoading: isLoading,
     signOut,
     clearStorage,
     isAuthenticated: !!(clerkUser || supabaseUser),
