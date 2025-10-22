@@ -62,12 +62,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { book_id, content, page_number, chapter, tags, is_public } = body
 
+    console.log('Memo API POST request:', { book_id, content, is_public })
+
     if (!book_id || !content) {
       return NextResponse.json({ error: 'book_id and content are required' }, { status: 400 })
     }
 
     // Clerk認証を使用
+    console.log('Checking Clerk authentication...')
     const user = await requireClerkAuth(request)
+    console.log('Clerk user authenticated:', user.id)
     const ownerId = user.id
 
     const supabase = createServerSupabaseClient()
@@ -102,6 +106,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create memo' }, { status: 500 })
     }
 
+    console.log('Memo created successfully:', data)
     return NextResponse.json({ memo: data }, { status: 201 })
   } catch (error) {
     console.error('Unexpected error:', error)

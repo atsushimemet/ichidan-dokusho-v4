@@ -77,6 +77,8 @@ export default function MemoCreatePage({ params }: MemoCreatePageProps) {
     setSubmitState(variant)
 
     try {
+      console.log('Submitting memo:', { book_id: params.id, content, is_public: variant === 'public' })
+      
       const response = await fetch('/api/memos', {
         method: 'POST',
         headers: {
@@ -89,15 +91,31 @@ export default function MemoCreatePage({ params }: MemoCreatePageProps) {
         })
       })
 
+      console.log('Response status:', response.status)
+      console.log('Response ok:', response.ok)
+
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}))
-        throw new Error(data.error || 'メモの登録に失敗しました')
+        let errorMessage = 'メモの登録に失敗しました'
+        try {
+          const data = await response.json()
+          console.log('Error response data:', data)
+          errorMessage = data.error || errorMessage
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError)
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`
+        }
+        throw new Error(errorMessage)
       }
 
+      const result = await response.json()
+      console.log('Success response:', result)
+      
       setContent('')
       router.push(`/books/${params.id}`)
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'メモの登録に失敗しました')
+      console.error('Memo submission error:', err)
+      const errorMessage = err instanceof Error ? err.message : 'メモの登録に失敗しました'
+      setSubmitError(errorMessage)
     } finally {
       setSubmitState(null)
     }
@@ -120,7 +138,25 @@ export default function MemoCreatePage({ params }: MemoCreatePageProps) {
   }
 
   if (!isAuthenticated) {
-    return null
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <Navigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="mx-auto flex max-w-3xl flex-col gap-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">認証が必要です</h2>
+              <p className="text-gray-600 mb-6">メモを作成するにはログインが必要です。</p>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+              >
+                ログインページへ
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -178,7 +214,21 @@ export default function MemoCreatePage({ params }: MemoCreatePageProps) {
               </div>
 
               {submitError && (
-                <p className="text-sm text-red-600">{submitError}</p>
+                <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-red-800">エラーが発生しました</h3>
+                      <div className="mt-2 text-sm text-red-700">
+                        <p>{submitError}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
 
               <div className="flex flex-col gap-3 md:flex-row">
