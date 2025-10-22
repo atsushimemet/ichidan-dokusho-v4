@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { requireClerkAuth } from '@/lib/clerk-auth'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
@@ -65,18 +66,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'book_id and content are required' }, { status: 400 })
     }
 
-    const supabase = createServerSupabaseClient()
-
-    const {
-      data: { user },
-      error: authError
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
+    // Clerk認証を使用
+    const user = await requireClerkAuth(request)
     const ownerId = user.id
+
+    const supabase = createServerSupabaseClient()
     
     const publishFlag = typeof is_public === 'boolean' ? is_public : false
 
@@ -111,6 +105,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ memo: data }, { status: 201 })
   } catch (error) {
     console.error('Unexpected error:', error)
+    
+    // Clerk認証エラーの場合
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

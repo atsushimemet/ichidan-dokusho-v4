@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { requireClerkAuth } from '@/lib/clerk-auth'
 import { NextRequest, NextResponse } from 'next/server'
 
 interface RouteContext {
@@ -46,16 +47,10 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: 'content is required' }, { status: 400 })
     }
 
+    // Clerk認証を使用
+    const user = await requireClerkAuth(request)
+
     const supabase = createServerSupabaseClient()
-
-    const {
-      data: { user },
-      error: authError
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const publishFlag = typeof is_public === 'boolean' ? is_public : false
 
@@ -86,22 +81,22 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ memo: data })
   } catch (error) {
     console.error('Unexpected error updating memo:', error)
+    
+    // Clerk認証エラーの場合
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 export async function DELETE(request: NextRequest, { params }: RouteContext) {
   try {
+    // Clerk認証を使用
+    const user = await requireClerkAuth(request)
+
     const supabase = createServerSupabaseClient()
-
-    const {
-      data: { user },
-      error: authError
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const { data, error } = await supabase
       .from('memos')
@@ -122,6 +117,12 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Unexpected error deleting memo:', error)
+    
+    // Clerk認証エラーの場合
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
