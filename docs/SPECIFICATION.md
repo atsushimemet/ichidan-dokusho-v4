@@ -164,30 +164,334 @@ CREATE TABLE store_category_tags (
 ## API仕様
 
 ### 認証が必要なエンドポイント
-- `POST /api/memos` - メモ作成
-- `PUT /api/memos/[id]` - メモ更新
-- `DELETE /api/memos/[id]` - メモ削除
+
+#### POST /api/memos
+**説明**: 新しいメモを作成
+**認証**: Clerk認証必須
+**リクエストボディ**:
+```typescript
+{
+  book_id: string;
+  content: string;
+  page_number?: number;
+  chapter?: string;
+  tags?: string[];
+  is_public?: boolean;
+}
+```
+**レスポンス**:
+```typescript
+// 成功 (201)
+{
+  memo: {
+    id: string;
+    book_id: string;
+    user_id: string;
+    content: string;
+    page_number?: number;
+    chapter?: string;
+    tags?: string[];
+    is_public: boolean;
+    created_at: string;
+    books: {
+      id: string;
+      title: string;
+      author: string;
+    }
+  }
+}
+
+// エラー (401, 400, 500)
+{
+  error: string;
+}
+```
+
+#### PUT /api/memos/[id]
+**説明**: 既存のメモを更新
+**認証**: Clerk認証必須 + 所有権チェック
+**リクエストボディ**:
+```typescript
+{
+  content: string;
+  page_number?: number;
+  chapter?: string;
+  tags?: string[];
+  is_public?: boolean;
+}
+```
+**レスポンス**:
+```typescript
+// 成功 (200)
+{
+  memo: {
+    id: string;
+    book_id: string;
+    user_id: string;
+    content: string;
+    page_number?: number;
+    chapter?: string;
+    tags?: string[];
+    is_public: boolean;
+    updated_at: string;
+    books: {
+      id: string;
+      title: string;
+      author: string;
+    }
+  }
+}
+
+// エラー (401, 403, 404, 500)
+{
+  error: string;
+}
+```
+
+#### DELETE /api/memos/[id]
+**説明**: メモを削除
+**認証**: Clerk認証必須 + 所有権チェック
+**レスポンス**:
+```typescript
+// 成功 (200)
+{
+  message: "Memo deleted successfully";
+}
+
+// エラー (401, 403, 404, 500)
+{
+  error: string;
+}
+```
 
 ### 認証が不要なエンドポイント
-- `GET /api/books` - 書籍一覧取得
-- `GET /api/books/[id]` - 書籍詳細取得
-- `GET /api/bookstores` - 店舗一覧取得
-- `GET /api/memos` - メモ一覧取得
 
-### レスポンス形式
+#### GET /api/books
+**説明**: 書籍一覧を取得
+**クエリパラメータ**:
+- `limit` (optional): 取得件数 (デフォルト: 10)
+- `offset` (optional): オフセット (デフォルト: 0)
+- `category` (optional): カテゴリフィルタ
+- `search` (optional): 検索キーワード
+
+**レスポンス**:
 ```typescript
-// 成功レスポンス
+// 成功 (200)
+{
+  books: Array<{
+    id: string;
+    title: string;
+    author: string;
+    isbn?: string;
+    amazon_paper_url?: string;
+    amazon_ebook_url?: string;
+    amazon_audiobook_url?: string;
+    asin?: string; // Amazon画像用
+    created_at: string;
+    updated_at: string;
+  }>;
+}
+
+// エラー (500)
+{
+  error: string;
+}
+```
+
+#### GET /api/books/[id]
+**説明**: 特定の書籍詳細を取得
+**パスパラメータ**:
+- `id`: 書籍ID
+
+**レスポンス**:
+```typescript
+// 成功 (200)
+{
+  book: {
+    id: string;
+    title: string;
+    author: string;
+    isbn?: string;
+    amazon_paper_url?: string;
+    amazon_ebook_url?: string;
+    amazon_audiobook_url?: string;
+    asin?: string;
+    created_at: string;
+    updated_at: string;
+  };
+}
+
+// エラー (404, 500)
+{
+  error: string;
+}
+```
+
+#### GET /api/bookstores
+**説明**: 店舗一覧を取得
+**クエリパラメータ**:
+- `limit` (optional): 取得件数 (デフォルト: 10)
+- `offset` (optional): オフセット (デフォルト: 0)
+- `search` (optional): 検索キーワード
+
+**レスポンス**:
+```typescript
+// 成功 (200)
+{
+  stores: Array<{
+    id: string;
+    name: string;
+    area_id: number;
+    x_link?: string;
+    instagram_link?: string;
+    website_link?: string;
+    x_post_url?: string;
+    google_map_link?: string;
+    description?: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+    area: {
+      id: number;
+      name: string;
+    };
+    category_tags: Array<{
+      category_tag: {
+        id: number;
+        display_name: string;
+      };
+    }>;
+  }>;
+}
+
+// エラー (500)
+{
+  error: string;
+}
+```
+
+#### GET /api/memos
+**説明**: メモ一覧を取得
+**クエリパラメータ**:
+- `book_id` (optional): 特定の書籍のメモのみ取得
+
+**レスポンス**:
+```typescript
+// 成功 (200)
+{
+  memos: Array<{
+    id: string;
+    book_id: string;
+    user_id: string;
+    content: string;
+    page_number?: number;
+    chapter?: string;
+    tags?: string[];
+    is_public: boolean;
+    created_at: string;
+    updated_at: string;
+    books: {
+      id: string;
+      title: string;
+      author: string;
+    };
+  }>;
+}
+
+// エラー (500)
+{
+  error: string;
+}
+```
+
+#### POST /api/bookstores
+**説明**: 新しい店舗を作成
+**認証**: 管理者認証必須
+**リクエストボディ**:
+```typescript
+{
+  name: string;
+  area_id: number;
+  x_link?: string;
+  instagram_link?: string;
+  website_link?: string;
+  x_post_url?: string;
+  google_map_link?: string;
+  description?: string;
+  is_active?: boolean;
+  category_tag_ids?: number[];
+}
+```
+**レスポンス**:
+```typescript
+// 成功 (201)
+{
+  store: {
+    id: string;
+    name: string;
+    area_id: number;
+    x_link?: string;
+    instagram_link?: string;
+    website_link?: string;
+    x_post_url?: string;
+    google_map_link?: string;
+    description?: string;
+    is_active: boolean;
+    created_at: string;
+  };
+}
+
+// エラー (400, 500)
+{
+  error: string;
+}
+```
+
+### 共通レスポンス形式
+
+#### 成功レスポンス
+```typescript
+// 単一リソース
+{
+  "book": { ... },
+  "memo": { ... },
+  "store": { ... }
+}
+
+// 複数リソース
 {
   "books": [...],
   "memos": [...],
   "stores": [...]
 }
+```
 
-// エラーレスポンス
+#### エラーレスポンス
+```typescript
 {
   "error": "エラーメッセージ"
 }
 ```
+
+#### HTTPステータスコード
+- `200`: 成功
+- `201`: 作成成功
+- `400`: リクエストエラー
+- `401`: 認証エラー
+- `403`: 権限エラー
+- `404`: リソースが見つからない
+- `500`: サーバーエラー
+
+### 認証ヘッダー
+認証が必要なエンドポイントでは、Clerkの認証トークンが自動的に処理されます。
+
+### レート制限
+現在、レート制限は実装されていませんが、今後の拡張で追加予定です。
+
+### エラーハンドリング
+- 全てのAPIエンドポイントで統一されたエラーレスポンス形式
+- 詳細なエラーログの記録
+- クライアントサイドでの適切なエラー表示
 
 ## 環境変数
 
